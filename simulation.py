@@ -1,39 +1,37 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 class ShopSimulation:
     def __init__(self, params):
-        # Inicjalizacja obiektu symulacji sklepu z parametrami
-        self.params = params  # Parametry symulacji
-        self.results = {}  # Wyniki symulacji
-
-    def run(self):
-        # Metoda do przeprowadzenia symulacji
-        days_of_week = ["Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota", "Niedziela"]
-        # Tworzenie słownika na wyniki symulacji
+        # Inicjalizacja parametrów symulacji sklepu
+        self.params = params
+        # Inicjalizacja wyników symulacji
         self.results = {
-            'customer_count': [],  # Liczba klientów
-            'average_satisfaction': [],  # Średnie zadowolenie klientów
-            'average_basket_price': [],  # Średnia wartość koszyka
-            'average_spending': [],  # Średnie wydatki
-            'employee_costs': 0,  # Koszty pracowników
-            'revenue': 0,  # Dochód
-            'net_earnings': 0  # Zysk netto
+            'customer_count': {day: [] for day in ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Niedz"]},
+            'average_satisfaction': [],
+            'average_basket_price': [],
+            'average_spending': [],
+            'employee_costs': 0,
+            'revenue': 0,
+            'net_earnings': 0
         }
 
-        for day in days_of_week:
-            # Generowanie liczby klientów na podstawie rozkładu normalnego
-            customer_count = np.random.normal(loc=self.params['mu_hours'], scale=self.params['sigma_hours'])
-            self.results['customer_count'].append(max(int(customer_count), 0))
+    def run(self):
+        # Główna pętla symulacyjna
+        for week in range(self.params['weeks']):
+            for day_name in self.params['selected_days']:
+                # Symulacja liczby klientów na podstawie rozkładu normalnego
+                customer_count = np.random.normal(loc=self.params['mu_hours'], scale=self.params['sigma_hours'])
+                # Zapisywanie liczby klientów, zabezpieczenie przed wartościami ujemnymi
+                self.results['customer_count'][day_name].append(max(int(customer_count), 0))
 
-            # Losowe generowanie danych dotyczących zadowolenia, koszyka, i wydatków klientów
-            self.results['average_satisfaction'].append(np.random.random())
-            self.results['average_basket_price'].append(np.random.uniform(10, 100))
-            self.results['average_spending'].append(customer_count * np.random.uniform(10, 100))
+        # Obliczanie całkowitej liczby klientów
+        total_customer_count = sum([sum(c) for c in self.results['customer_count'].values()])
 
-        # Losowe generowanie kosztów pracowników
-        self.results['employee_costs'] = np.random.uniform(1000, 5000)
-        # Obliczanie dochodu
-        self.results['revenue'] = sum(self.results['average_spending'])
-        # Obliczanie zysku netto
+        # Obliczanie całkowitego przychodu
+        self.results['revenue'] = total_customer_count * np.random.uniform(10, 100)
+
+        # Obliczanie całkowitych kosztów pracowniczych
+        self.results['employee_costs'] = np.random.uniform(1000, 5000) * self.params['weeks']
+
+        # Obliczanie zysków netto (przychody minus koszty)
         self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs']
