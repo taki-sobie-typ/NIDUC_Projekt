@@ -64,9 +64,11 @@ class SimulationFrame(tk.Frame):
 
     def submit(self):
         params = {
-            'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie średnich godzin
+            'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie max godzin
+            'mu_min_hours': float(self.mu_hours_entry_min.get()), # Pobranie min godzin
             'sigma_hours': float(self.sigma_hours_entry.get()),  # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
-            'daily_variation': float(self.daily_variation_entry.get())  # Pobranie odchylenia standardowego dla dziennych przyjść klientów
+            'daily_variation': float(self.daily_variation_entry.get()),  # Pobranie odchylenia standardowego dla dziennych przyjść klientów
+            'yearly_variation': float(self.yearly_variation_entry.get()) # Pobranie odchulenia standardowego w skali rocznej
         }
         simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
         simulation.run()  # Uruchomienie symulacji
