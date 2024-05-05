@@ -5,7 +5,7 @@ from simulation import ShopSimulation  # Import klasy ShopSimulation z modułu s
 
 class SimulationFrame(tk.Frame):
     def __init__(self, master=None):
-        super().__init__(master, bg='#333333')  # Inicjalizacja ramki tkinter z tłem #333333
+        super().__init__(master, bg='#999999')  # Inicjalizacja ramki tkinter z tłem #333333
         self.pack(padx=10, pady=10)  # Pakowanie ramki z marginesem 10 pikseli
         self.create_widgets()  # Wywołanie metody do tworzenia widżetów
 
@@ -18,7 +18,7 @@ class SimulationFrame(tk.Frame):
         button_fg = 'white'  # Kolor tekstu na przyciskach
 
         # Konfiguracja dla wszystkich etykiet
-        label_options = {'bg': '#333333', 'fg': label_color, 'padx': 10, 'pady': 10}
+        label_options = {'bg': '#999999', 'fg': label_color, 'padx': 10, 'pady': 10}
 
         # Utworzenie zakładek (interfejs z zakładkami)
         self.notebook = ttk.Notebook(self, style='TNotebook')
@@ -29,23 +29,32 @@ class SimulationFrame(tk.Frame):
         self.notebook.add(parameters_frame, text='Parametry')
 
         # Pole wprowadzenia dziennej ilosci osob? nie kminie tego Gaussa
-        tk.Label(parameters_frame, text="Średnia ilość osób", **label_options).grid(row=0, column=0, sticky='w')
+        tk.Label(parameters_frame, text="Maksymalna ilość osób", **label_options).grid(row=0, column=0, sticky='w')
         self.mu_hours_entry = tk.Entry(parameters_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0)
         self.mu_hours_entry.grid(row=0, column=1, pady=5)
 
+        tk.Label(parameters_frame, text="Minimalna ilość osób", **label_options).grid(row=1, column=0, sticky='w')
+        self.mu_hours_entry_min = tk.Entry(parameters_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0)
+        self.mu_hours_entry_min.grid(row=1, column=1, pady=5)
+
         # Pole wprowadzania odchylenia standardowego dla godzinowych przyjść klientów
-        tk.Label(parameters_frame, text="Odchylenie standardowe dla godzinowych przyjść klientów:", **label_options).grid(row=1, column=0, sticky='w')
+        tk.Label(parameters_frame, text="Odchylenie standardowe dla godzinowych przyjść klientów:", **label_options).grid(row=2, column=0, sticky='w')
         self.sigma_hours_entry = tk.Entry(parameters_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0)
-        self.sigma_hours_entry.grid(row=1, column=1, pady=5)
+        self.sigma_hours_entry.grid(row=2, column=1, pady=5)
 
         # Pole wprowadzania odchylenia standardowego dla dziennych przyjść klientów
-        tk.Label(parameters_frame, text="Odchylenie standardowe dla dziennych przyjść klientów:", **label_options).grid(row=2, column=0, sticky='w')
+        tk.Label(parameters_frame, text="Odchylenie standardowe dla dziennych przyjść klientów:", **label_options).grid(row=3, column=0, sticky='w')
         self.daily_variation_entry = tk.Entry(parameters_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0)
-        self.daily_variation_entry.grid(row=2, column=1, pady=5)
+        self.daily_variation_entry.grid(row=3, column=1, pady=5)
+
+        # Pole wprowadzania odchylenia standardowego w skali rocznej
+        tk.Label(parameters_frame, text="Odchylenie standardowe w skali rocznej:", **label_options).grid(row=4, column=0, sticky='w')
+        self.yearly_variation_entry = tk.Entry(parameters_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0)
+        self.yearly_variation_entry.grid(row=4, column=1, pady=5)
 
         # Przycisk Zatwierdź
         self.submit_button = tk.Button(parameters_frame, text="Zatwierdź", bg=button_color, fg=button_fg, borderwidth=0, command=self.submit)
-        self.submit_button.grid(row=3, columnspan=2, pady=10)
+        self.submit_button.grid(row=5, columnspan=2, pady=10)
 
         # Druga zakładka (Tygodniowe wyniki)
         self.weekly_results_frame = ttk.Frame(self.notebook, style='TFrame')  # Utworzenie ramki dla wyników tygodniowych
@@ -63,9 +72,10 @@ class SimulationFrame(tk.Frame):
         simulation.run()  # Uruchomienie symulacji
 
         # Przechowywanie wyników w drugiej zakładce
-        self.display_results(simulation.results)
+        self.display_results(simulation.yearsTimeResults)
 
-    def display_results(self, results):
+    def display_results(self, yearsTimeResults):
+        """
         # Wyświetlenie wyników w drugiej zakładce
         self.weekly_results_text.insert('end', "Liczba klientów wg dnia:\n")
         for day, count in zip(["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Niedz"], results['customer_count']):
@@ -73,3 +83,18 @@ class SimulationFrame(tk.Frame):
         self.weekly_results_text.insert('end', f"\nCałkowity dochód: ${results['revenue']:.2f}\n")
         self.weekly_results_text.insert('end', f"Koszty pracowników: ${results['employee_costs']:.2f}\n")
         self.weekly_results_text.insert('end', f"Zysk netto: ${results['net_earnings']:.2f}\n")
+        """
+        # Create a bar plot for customer count
+        days_of_week = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Niedz"]
+        week_numbers = list(range(0, 56))
+        #week_numbers = [str(i) for i in range(56)]
+        for result in yearsTimeResults:
+        #for result in yearsTimeResults:
+            plt.plot(week_numbers, result['customer_count'])
+            #plt.plot(week_numbers, sum(result['customer_count']))
+        plt.xlabel('Dzień tygodnia')
+        plt.ylabel('Liczba klientów')
+        plt.title('Liczba klientów wg dnia dla kolejnych tygodni')
+        plt.legend()
+        plt.show()
+

@@ -9,7 +9,7 @@ def main():
     # Define style for notebook and frame
     style = ttk.Style(root)
     style.configure('TNotebook', background='#ffffff')
-    style.configure('TFrame', background='#333333')
+    style.configure('TFrame', background='#999999')
     
     app = SimulationFrame(master=root)
     app.mainloop()
