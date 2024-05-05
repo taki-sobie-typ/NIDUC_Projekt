@@ -85,16 +85,16 @@ class SimulationFrame(tk.Frame):
         self.weekly_results_text.insert('end', f"Zysk netto: ${results['net_earnings']:.2f}\n")
         """
         # Create a bar plot for customer count
-        days_of_week = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Niedz"]
+        #days_of_week = ["Pon", "Wt", "Śr", "Czw", "Pt", "Sob", "Niedz"]
         week_numbers = list(range(0, 56))
+        customer_counts = [sum(result['customer_count']) for result in yearsTimeResults]
         #week_numbers = [str(i) for i in range(56)]
-        for result in yearsTimeResults:
+
         #for result in yearsTimeResults:
-            plt.plot(week_numbers, result['customer_count'])
-            #plt.plot(week_numbers, sum(result['customer_count']))
-        plt.xlabel('Dzień tygodnia')
-        plt.ylabel('Liczba klientów')
-        plt.title('Liczba klientów wg dnia dla kolejnych tygodni')
-        plt.legend()
+        plt.plot(week_numbers, customer_counts)
+        #plt.plot(week_numbers, sum(result['customer_count']))
+        plt.xlabel('Numer tygodnia w roku')
+        plt.ylabel('Liczba klientów w skali roku')
+        plt.title('Liczba klientów dla kolejnych tygodni')
         plt.show()
 
