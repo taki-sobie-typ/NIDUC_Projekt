@@ -29,7 +29,7 @@ class SimulationFrame(tk.Frame):
         # Zakładka z parametrami
         parameters_frame = ttk.Frame(self.notebook, style='TFrame')
         self.notebook.add(parameters_frame, text='Parametry')
-        
+
         #Centrowanie zakładki z parametrami
         parameters_inner_frame = ttk.Frame(parameters_frame)
         parameters_inner_frame.place(relx=0.5, rely=0.2, anchor='center')
@@ -69,42 +69,42 @@ class SimulationFrame(tk.Frame):
         self.notebook.add(self.weekly_results_frame, text='Wyniki Roczne')  # Dodanie zakładki z tytułem "Wyniki Roczne"
         #self.weekly_results_text = tk.Text(self.weekly_results_frame, wrap='word')  # Utworzenie pola tekstowego do wyświetlania wyników
         #self.weekly_results_text.pack(fill='both', expand=True)  # Pakowanie pola tekstowego z rozszerzeniem
-        
+
         #Trzecia zakładka (Wyniki roczne podsumowanie numeryczne)
-        
+
         self.summary_frame = ttk.Frame(self.notebook, style='TFrame')
         self.notebook.add(self.summary_frame, text='Podsumowanie Roczne Liczby')
-         
-         
+
+
         #Drop menu do 3 zakładki
-         
+
         self.week_label = tk.Label(self.summary_frame, text="Wybierz tydzień:", **label_options)
         self.week_label.pack(pady=5)
 
-        
+
         self.week_combobox = ttk.Combobox(self.summary_frame, values=[f"Week {i}" for i in range(1, 57)] + ["Total"], font=('Arial', 12))
-        self.week_combobox.current(56)  
+        self.week_combobox.current(56)
         self.week_combobox.pack(pady=5)
         self.week_combobox.bind("<<ComboboxSelected>>", self.update_summary_combobox)
 
-        
 
-         
+
+
         #Trzecia zakładka wygląd tabeli
-        
+
         self.summary_table = ttk.Treeview(self.summary_frame, columns=("Metric", "Value"), show='headings', height=8)
         self.summary_table.heading("Metric", text="Metric")
         self.summary_table.heading("Value", text="Value")
         self.summary_table.column("Metric", anchor='center', width=150)
         self.summary_table.column("Value", anchor='center', width=200)
-        
+
         #Wiekszy font i separacja tabeli
         style = ttk.Style()
         style.configure("Treeview.Heading", font=('Arial', 14, 'bold'), padding=(10, 5))
         style.configure("Treeview", font=('Arial', 14), rowheight=75)
 
         self.summary_table.pack(fill='both', expand=True, pady=10, padx=10)
-        
+
     def submit(self):
         params = {
             'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie max godzin
@@ -118,10 +118,10 @@ class SimulationFrame(tk.Frame):
 
         # Przechowywanie wyników w drugiej zakładce
         self.display_results(simulation.yearsTimeResults)
-        
+
         #Przechowywanie wyników w trzeciej zakładce
         self.display_summary(simulation.yearsTimeResults)
-        
+
     def display_summary(self, yearsTimeResults):
         self.yearsTimeResults = yearsTimeResults
         self.week_combobox.set("Total")
@@ -162,7 +162,7 @@ class SimulationFrame(tk.Frame):
             self.summary_table.insert("", "end", values=(metric, value))
 
 
-        
+
     def update_summary_combobox(self, event):
         selection = self.week_combobox.get()
         if selection == "All":
@@ -170,8 +170,8 @@ class SimulationFrame(tk.Frame):
         else:
             week = int(selection.split()[1])
         self.update_summary(week)
-    
-      
+
+
 
 
 
@@ -195,24 +195,24 @@ class SimulationFrame(tk.Frame):
         net_earnings_total = [(result['net_earnings']) for result in yearsTimeResults]
 
         # Subplot
-        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(10, 9))
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1, figsize=(10, 10))
 
         # Graf dla liczby klientow
         ax1.plot(week_numbers, customer_counts, label='Liczba klientów')
-        ax1.set_xlabel('Numer tygodnia w roku')
+        #ax1.set_xlabel('Numer tygodnia w roku')
         ax1.set_ylabel('Liczba klientów w skali roku')
-        ax1.set_title('Liczba klientów dla kolejnych tygodni')
+        ax1.set_title('Dla kolejnych tygodni w roku')
         ax1.legend()
 
         # Graf dla dochodu całkowitego
         ax2.plot(week_numbers, revenue_total, label='Calkowity dochód', color='orange')
-        ax2.set_xlabel('Numer tygodnia w roku')
+        #ax2.set_xlabel('Numer tygodnia w roku')
         ax2.set_ylabel('Całkowity dochód')
         ax2.legend()
 
         # Graf dla dochodu całkowitego
         ax3.plot(week_numbers, employee_cost_total, label='Koszt pracowników', color='green')
-        ax3.set_xlabel('Numer tygodnia w roku')
+        #ax3.set_xlabel('Numer tygodnia w roku')
         ax3.set_ylabel('Koszt pracowników')
         ax3.legend()
 
