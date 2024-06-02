@@ -26,7 +26,10 @@ class ShopSimulation:
                 'revenue': 0,
                 'net_earnings': 0,
                 'queue_length': [],
-                'waiting_time': []
+                'waiting_time': [],
+                'customer_satisfaction': {'very_satisfied': 0, 'satisfied': 0, 'unsatisfied': 0},
+                'age_distribution': [],
+                'queue_choices': {'standard': 0, 'self': 0}
 
             }
 
@@ -59,16 +62,50 @@ class ShopSimulation:
                 self.results['revenue'] = sum(self.results['average_spending'])
                 self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs']
 
+                # Initialize queue counts for the day
+                daily_standard_queue = 0
+                daily_self_queue = 0
+
                 # Adding queue
                 checkouts_number = self.params['checkouts_number']
                 selfcheckouts_number = self.params['selfcheckouts_number']
                 open_hours = self.params['open_hours']
+
+                for _ in range(customer_count):
+                    # Generate age for each customer
+                    age = np.random.randint(15, 91)
+                    self.results['age_distribution'].append(age)
+
+                    # Determine queue choice based on age
+                    if 15 <= age <= 45:
+                        if np.random.rand() < 0.7:
+                            daily_self_queue += 1
+                            self.results['queue_choices']['self'] += 1
+                        else:
+                            daily_standard_queue += 1
+                            self.results['queue_choices']['standard'] += 1
+                    elif 45 < age <= 60:
+                        if np.random.rand() < 0.5:
+                            daily_self_queue += 1
+                            self.results['queue_choices']['self'] += 1
+                        else:
+                            daily_standard_queue += 1
+                            self.results['queue_choices']['standard'] += 1
+                    else:
+                        if np.random.rand() < 0.1:
+                            daily_self_queue += 1
+                            self.results['queue_choices']['self'] += 1
+                        else:
+                            daily_standard_queue += 1
+                            self.results['queue_choices']['standard'] += 1
+
                 hourly_customers = customer_count / open_hours
                 standard_queue_length = max(0, hourly_customers / checkouts_number)
                 self_queue_length = max(0, hourly_customers / selfcheckouts_number)
 
                 self.results['queue_length'].append((standard_queue_length, self_queue_length))
                 self.results['waiting_time'].append((standard_queue_length * checkout_time, self_queue_length * selfcheckout_time))
+
 
 
             self.yearsTimeResults.append(self.results)

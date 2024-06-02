@@ -75,7 +75,7 @@ class SimulationFrame(tk.Frame):
 
         # Przycisk Zatwierdź
         self.submit_button = tk.Button(parameters_inner_frame, text="Zatwierdź", bg=button_color, fg=button_fg, borderwidth=0, command=self.submit, font=('Arial', 13))
-        self.submit_button.grid(row=9, columnspan=2, pady=10)
+        self.submit_button.grid(row=8, columnspan=2, pady=10)
 
 
         # Druga zakładka (Wyniki Roczne)
