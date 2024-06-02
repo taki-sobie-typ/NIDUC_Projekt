@@ -12,6 +12,10 @@ class ShopSimulation:
         # Define possible daily changes for Monte Carlo simulation
         possible_changes = [0, 5, -5, 10, -10, 15, -15]  # Example changes in customer counts
 
+        # Define time needed to serve one customer
+        checkout_time = 1
+        selfcheckout_time = 0.5
+
         for _ in range(56):  # Run simulation for 56 weeks
             self.results = {
                 'customer_count': [],
@@ -20,7 +24,10 @@ class ShopSimulation:
                 'average_spending': [],
                 'employee_costs': 0,
                 'revenue': 0,
-                'net_earnings': 0
+                'net_earnings': 0,
+                'queue_length': [],
+                'waiting_time': []
+
             }
 
             for day_idx, day in enumerate(days_of_week):
@@ -51,5 +58,17 @@ class ShopSimulation:
                 self.results['employee_costs'] = np.clip(np.random.normal(3000, 1000), 1000, None)
                 self.results['revenue'] = sum(self.results['average_spending'])
                 self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs']
+
+                # Adding queue
+                checkouts_number = self.params['checkouts_number']
+                selfcheckouts_number = self.params['selfcheckouts_number']
+                open_hours = self.params['open_hours']
+                hourly_customers = customer_count / open_hours
+                standard_queue_length = max(0, hourly_customers / checkouts_number)
+                self_queue_length = max(0, hourly_customers / selfcheckouts_number)
+
+                self.results['queue_length'].append((standard_queue_length, self_queue_length))
+                self.results['waiting_time'].append((standard_queue_length * checkout_time, self_queue_length * selfcheckout_time))
+
 
             self.yearsTimeResults.append(self.results)

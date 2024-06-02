@@ -43,24 +43,39 @@ class SimulationFrame(tk.Frame):
         self.mu_hours_entry_min = tk.Entry(parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.mu_hours_entry_min.grid(row=1, column=1, pady=5)
 
+        # Pole wprowadzenia ilosci kas standardowych
+        tk.Label(parameters_inner_frame, text = "Liczba kas standardowych", **label_options).grid(row = 2, column = 0, sticky = 'w')
+        self.checkouts_number = tk.Entry(parameters_inner_frame, width = 20, bg = entry_bg, fg = entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.checkouts_number.grid(row = 2, column= 1, pady = 5)
+
+        # Pole wprowadzenia ilosci kas samoosblugowych
+        tk.Label(parameters_inner_frame, text = "Liczba kas samoobslugowych", **label_options).grid(row = 3, column = 0, sticky = 'w')
+        self.selfcheckouts_number = tk.Entry(parameters_inner_frame, width = 20, bg = entry_bg, fg = entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.selfcheckouts_number.grid(row = 3, column= 1, pady = 5)
+
         # Pole wprowadzania odchylenia standardowego dla godzinowych przyjść klientów
-        tk.Label(parameters_inner_frame, text="Odchylenie standardowe dla godzinowych przyjść klientów:", **label_options).grid(row=2, column=0, sticky='w')
+        tk.Label(parameters_inner_frame, text="Odchylenie standardowe dla godzinowych przyjść klientów:", **label_options).grid(row=4, column=0, sticky='w')
         self.sigma_hours_entry = tk.Entry(parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.sigma_hours_entry.grid(row=2, column=1, pady=5)
+        self.sigma_hours_entry.grid(row=4, column=1, pady=5)
 
         # Pole wprowadzania odchylenia standardowego dla dziennych przyjść klientów
-        tk.Label(parameters_inner_frame, text="Odchylenie standardowe dla dziennych przyjść klientów:", **label_options).grid(row=3, column=0, sticky='w')
+        tk.Label(parameters_inner_frame, text="Odchylenie standardowe dla dziennych przyjść klientów:", **label_options).grid(row=5, column=0, sticky='w')
         self.daily_variation_entry = tk.Entry(parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.daily_variation_entry.grid(row=3, column=1, pady=5)
+        self.daily_variation_entry.grid(row=5, column=1, pady=5)
 
         # Pole wprowadzania odchylenia standardowego w skali rocznej
-        tk.Label(parameters_inner_frame, text="Odchylenie standardowe w skali rocznej:", **label_options).grid(row=4, column=0, sticky='w')
+        tk.Label(parameters_inner_frame, text="Odchylenie standardowe w skali rocznej:", **label_options).grid(row=6, column=0, sticky='w')
         self.yearly_variation_entry = tk.Entry(parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.yearly_variation_entry.grid(row=4, column=1, pady=5)
+        self.yearly_variation_entry.grid(row=6, column=1, pady=5)
+
+        #Pole wprowadzenia godzin przez ile sklep jest otwarty
+        tk.Label(parameters_inner_frame, text="Czas kiedy sklep jest czynny (w godzinach):", **label_options).grid(row=7, column=0, sticky='w')
+        self.open_hours = tk.Entry(parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.open_hours.grid(row = 7, column = 1, pady = 5)
 
         # Przycisk Zatwierdź
         self.submit_button = tk.Button(parameters_inner_frame, text="Zatwierdź", bg=button_color, fg=button_fg, borderwidth=0, command=self.submit, font=('Arial', 13))
-        self.submit_button.grid(row=5, columnspan=2, pady=10)
+        self.submit_button.grid(row=9, columnspan=2, pady=10)
 
 
         # Druga zakładka (Wyniki Roczne)
@@ -109,9 +124,12 @@ class SimulationFrame(tk.Frame):
         params = {
             'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie max godzin
             'mu_min_hours': float(self.mu_hours_entry_min.get()), # Pobranie min godzin
+            'checkouts_number': float(self.checkouts_number.get()), #Pobranie liczby kas standardowych
+            'selfcheckouts_number': float(self.selfcheckouts_number.get()), # Pobranie liczby kas samoobslugowych
             'sigma_hours': float(self.sigma_hours_entry.get()),  # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
             'daily_variation': float(self.daily_variation_entry.get()),  # Pobranie odchylenia standardowego dla dziennych przyjść klientów
-            'yearly_variation': float(self.yearly_variation_entry.get()) # Pobranie odchulenia standardowego w skali rocznej
+            'yearly_variation': float(self.yearly_variation_entry.get()), # Pobranie odchulenia standardowego w skali rocznej
+            'open_hours': float(self.open_hours.get()) # Pobranie czasu otwarcia sklepu
         }
         simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
         simulation.run()  # Uruchomienie symulacji
@@ -137,12 +155,17 @@ class SimulationFrame(tk.Frame):
             total_revenue = sum(result['revenue'] for result in self.yearsTimeResults)
             total_employee_costs = sum(result['employee_costs'] for result in self.yearsTimeResults)
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
+            avg_waiting_time_standard = sum(sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
+            avg_waiting_time_self = sum(sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
+
 
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
-                ("Zysk netto", f"${total_net_earnings:.2f}")
+                ("Zysk netto", f"${total_net_earnings:.2f}"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min")
             ]
         else:
             week_result = self.yearsTimeResults[week - 1]
@@ -150,12 +173,17 @@ class SimulationFrame(tk.Frame):
             total_revenue = week_result['revenue']
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
+            avg_waiting_time_standard = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
+            avg_waiting_time_self = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
+
 
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
-                ("Zysk netto", f"${total_net_earnings:.2f}")
+                ("Zysk netto", f"${total_net_earnings:.2f}"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min")
             ]
 
         for metric, value in summary_data:
