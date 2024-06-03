@@ -70,42 +70,91 @@ class ShopSimulation:
                 checkouts_number = self.params['checkouts_number']
                 selfcheckouts_number = self.params['selfcheckouts_number']
                 open_hours = self.params['open_hours']
-
-                for _ in range(customer_count):
-                    # Generate age for each customer
-                    age = np.random.randint(15, 91)
-                    self.results['age_distribution'].append(age)
-
-                    # Determine queue choice based on age
-                    if 15 <= age <= 45:
-                        if np.random.rand() < 0.7:
-                            daily_self_queue += 1
-                            self.results['queue_choices']['self'] += 1
-                        else:
-                            daily_standard_queue += 1
-                            self.results['queue_choices']['standard'] += 1
-                    elif 45 < age <= 60:
-                        if np.random.rand() < 0.5:
-                            daily_self_queue += 1
-                            self.results['queue_choices']['self'] += 1
-                        else:
-                            daily_standard_queue += 1
-                            self.results['queue_choices']['standard'] += 1
-                    else:
-                        if np.random.rand() < 0.1:
-                            daily_self_queue += 1
-                            self.results['queue_choices']['self'] += 1
-                        else:
-                            daily_standard_queue += 1
-                            self.results['queue_choices']['standard'] += 1
-
                 hourly_customers = customer_count / open_hours
-                standard_queue_length = max(0, hourly_customers / checkouts_number)
-                self_queue_length = max(0, hourly_customers / selfcheckouts_number)
 
-                self.results['queue_length'].append((standard_queue_length, self_queue_length))
-                self.results['waiting_time'].append((standard_queue_length * checkout_time, self_queue_length * selfcheckout_time))
+                for hours in range(int(open_hours)):
 
+                    for _ in range(int(hourly_customers)):
+                        # Generate age for each customer
+                        age = np.random.randint(15, 91)
+                        self.results['age_distribution'].append(age)
+                        hourly_standard_queue = 0
+                        hourly_self_queue = 0
+
+                        # Determine queue choice based on age
+                        if 15 <= age <= 45:
+                            if np.random.rand() < 0.7:
+                                daily_self_queue += 1
+                                hourly_self_queue += 1
+                                self.results['queue_choices']['self'] += 1
+                            else:
+                                daily_standard_queue += 1
+                                hourly_standard_queue += 1
+                                self.results['queue_choices']['standard'] += 1
+                        elif 45 < age <= 60:
+                            if np.random.rand() < 0.5:
+                                daily_self_queue += 1
+                                hourly_self_queue += 1
+                                self.results['queue_choices']['self'] += 1
+                            else:
+                                daily_standard_queue += 1
+                                hourly_standard_queue += 1
+                                self.results['queue_choices']['standard'] += 1
+                        else:
+                            if np.random.rand() < 0.1:
+                                daily_self_queue += 1
+                                hourly_self_queue += 1
+                                self.results['queue_choices']['self'] += 1
+                            else:
+                                daily_standard_queue += 1
+                                hourly_standard_queue += 1
+                                self.results['queue_choices']['standard'] += 1
+
+                    standard_waiting_time = self.calculate_time(hourly_standard_queue, checkouts_number, checkout_time)
+                    self_waiting_time = self.calculate_time(hourly_self_queue, selfcheckouts_number, selfcheckout_time)
+
+                    satisfaction = self.calculate_satisfaction(standard_waiting_time, self_waiting_time)
+                    self.results['customer_satisfaction']['very_satisfied'] += satisfaction['very_satisfied']
+                    self.results['customer_satisfaction']['satisfied'] += satisfaction['satisfied']
+                    self.results['customer_satisfaction']['unsatisfied'] += satisfaction['unsatisfied']
+                    self.results['waiting_time'].append((self.calculate_avg(standard_waiting_time, checkouts_number),self.calculate_avg(self_waiting_time, selfcheckouts_number)))
+
+                self.results['queue_length'].append((daily_standard_queue, daily_self_queue))
 
 
             self.yearsTimeResults.append(self.results)
+
+    def calculate_time(self, queue, checkouts, time ):
+        waiting_time = []
+        for i in range(queue):
+            if i < checkouts:
+                waiting_time.append(time)
+            else :
+                waiting_time.append(time * (i % checkouts))
+
+        return waiting_time
+
+    def calculate_avg(self, queue, checkouts):
+        return sum(queue) / checkouts
+
+    def calculate_satisfaction(self, standard_waiting_times, self_waiting_times):
+        satisfaction = {'very_satisfied': 0, 'satisfied': 0, 'unsatisfied': 0}
+
+        for time in standard_waiting_times:
+            if time < 3:
+                satisfaction['very_satisfied'] += 1
+            elif time < 5.5:
+                satisfaction['satisfied'] += 1
+            else:
+                satisfaction['unsatisfied'] += 1
+
+        for time in self_waiting_times:
+            if time < 2:
+                satisfaction['very_satisfied'] += 1
+            elif time < 4:
+                satisfaction['satisfied'] += 1
+            else:
+                satisfaction['unsatisfied'] += 1
+
+        return satisfaction
+

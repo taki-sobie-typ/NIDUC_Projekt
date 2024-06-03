@@ -157,7 +157,11 @@ class SimulationFrame(tk.Frame):
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
             avg_waiting_time_standard = sum(sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
             avg_waiting_time_self = sum(sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
-
+            satisfaction_levels = {
+                'very_satisfied': sum(result['customer_satisfaction']['very_satisfied'] for result in self.yearsTimeResults),
+                'satisfied': sum(result['customer_satisfaction']['satisfied'] for result in self.yearsTimeResults),
+                'unsatisfied': sum(result['customer_satisfaction']['unsatisfied'] for result in self.yearsTimeResults)
+            }
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -165,7 +169,10 @@ class SimulationFrame(tk.Frame):
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min")
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
+                ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
             ]
         else:
             week_result = self.yearsTimeResults[week - 1]
@@ -175,7 +182,7 @@ class SimulationFrame(tk.Frame):
             total_net_earnings = week_result['net_earnings']
             avg_waiting_time_standard = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
             avg_waiting_time_self = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
-
+            satisfaction_levels = week_result['customer_satisfaction']
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -183,7 +190,10 @@ class SimulationFrame(tk.Frame):
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min")
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
+                ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
             ]
 
         for metric, value in summary_data:
@@ -258,4 +268,3 @@ class SimulationFrame(tk.Frame):
         # Show plot
         # plt.tight_layout()
         # plt.show()
-
