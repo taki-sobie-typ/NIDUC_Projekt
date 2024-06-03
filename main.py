@@ -1,25 +1,17 @@
+from simulation_frame import SimulationFrame
 import tkinter as tk
 from tkinter import ttk
-from simulation_frame import SimulationFrame
 
 def main():
     root = tk.Tk()
-    root.title("Symulacja Sklepu")  # Ustawienie tytułu głównego okna aplikacji
-
-    # Konfiguracja stylu dla całej aplikacji
+    root.title("Shop Simulation Parameters")
+    
+    # Define style for notebook and frame
     style = ttk.Style(root)
-    # Ustawienie koloru tła dla widżetu Notebook, aby pasował do ciemniejszego motywu
-    style.configure('TNotebook', background='#ffffff', foreground='#ffffff')
-    style.configure('TFrame', background='#333333')
-    style.configure('TButton', background='#0066ff', foreground='white', font=('Helvetica', 10))
-    style.map('TButton', background=[('active', '#0055cc')])
-
-    # Konfiguracja koloru tekstu dla wszystkich etykiet w ramkach, aby zapewnić spójność
-    style.configure('TLabel', background='#ffffff', foreground='#ffffff')
-
-    # Inicjalizacja ramki aplikacji
+    style.configure('TNotebook', background='#fff')
+    style.configure('TFrame', background='#fff')
+    
     app = SimulationFrame(master=root)
-    # Uruchomienie głównej pętli Tkinter
     app.mainloop()
 
 if __name__ == "__main__":
