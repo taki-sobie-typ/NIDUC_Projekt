@@ -277,11 +277,14 @@ class SimulationFrame(tk.Frame):
 
     def update_summary_combobox(self, event):
         selection = self.week_combobox.get()
-        if selection == "All":
-            week = 0
-        else:
+        if selection == "Total":
+            self.update_summary(0)  # Pass 0 to indicate the "Total" selection
+        elif selection.startswith("Week"):
             week = int(selection.split()[1])
-        self.update_summary(week)
+            self.update_summary(week)
+        else:
+            # Handle other cases if needed
+            pass
 
     def display_results(self, yearsTimeResults):
         week_numbers = list(range(0, 56))
