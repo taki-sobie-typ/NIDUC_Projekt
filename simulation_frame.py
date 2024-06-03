@@ -155,8 +155,16 @@ class SimulationFrame(tk.Frame):
             total_revenue = sum(result['revenue'] for result in self.yearsTimeResults)
             total_employee_costs = sum(result['employee_costs'] for result in self.yearsTimeResults)
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
-            avg_waiting_time_standard = sum(sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
-            avg_waiting_time_self = sum(sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / len(self.yearsTimeResults)
+
+            total_days = len(self.yearsTimeResults) * 7  # 56 tygodni x 7 dni = 392 dni
+            total_standard_queue_customers = sum(
+                sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) / 12
+            total_self_queue_customers = sum(
+                sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in self.yearsTimeResults) /12
+
+            avg_waiting_time_standard = total_standard_queue_customers / total_days
+            avg_waiting_time_self = total_self_queue_customers / total_days
+
             satisfaction_levels = {
                 'very_satisfied': sum(result['customer_satisfaction']['very_satisfied'] for result in self.yearsTimeResults),
                 'satisfied': sum(result['customer_satisfaction']['satisfied'] for result in self.yearsTimeResults),
@@ -180,8 +188,13 @@ class SimulationFrame(tk.Frame):
             total_revenue = week_result['revenue']
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
-            avg_waiting_time_standard = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
-            avg_waiting_time_self = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / len(week_result['waiting_time'])
+
+            total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) /12
+            total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) /12
+
+            avg_waiting_time_standard = total_standard_queue_customers / 7  # 7 dni w tygodniu
+            avg_waiting_time_self = total_self_queue_customers / 7  # 7 dni w tygodniu
+
             satisfaction_levels = week_result['customer_satisfaction']
 
             summary_data = [

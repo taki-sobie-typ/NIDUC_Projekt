@@ -16,6 +16,10 @@ class ShopSimulation:
         checkout_time = 1
         selfcheckout_time = 0.5
 
+        checkouts_number = self.params['checkouts_number']
+        selfcheckouts_number = self.params['selfcheckouts_number']
+        open_hours = self.params['open_hours']
+
         for _ in range(56):  # Run simulation for 56 weeks
             self.results = {
                 'customer_count': [],
@@ -67,23 +71,22 @@ class ShopSimulation:
                 daily_self_queue = 0
 
                 # Adding queue
-                checkouts_number = self.params['checkouts_number']
-                selfcheckouts_number = self.params['selfcheckouts_number']
-                open_hours = self.params['open_hours']
                 hourly_customers = customer_count / open_hours
 
                 for hours in range(int(open_hours)):
+                    hourly_standard_queue = 0
+                    hourly_self_queue = 0
 
                     for _ in range(int(hourly_customers)):
                         # Generate age for each customer
                         age = np.random.randint(15, 91)
+                        prob = np.random.rand()
                         self.results['age_distribution'].append(age)
-                        hourly_standard_queue = 0
-                        hourly_self_queue = 0
+
 
                         # Determine queue choice based on age
                         if 15 <= age <= 45:
-                            if np.random.rand() < 0.7:
+                            if prob < 0.7:
                                 daily_self_queue += 1
                                 hourly_self_queue += 1
                                 self.results['queue_choices']['self'] += 1
@@ -92,7 +95,7 @@ class ShopSimulation:
                                 hourly_standard_queue += 1
                                 self.results['queue_choices']['standard'] += 1
                         elif 45 < age <= 60:
-                            if np.random.rand() < 0.5:
+                            if prob < 0.5:
                                 daily_self_queue += 1
                                 hourly_self_queue += 1
                                 self.results['queue_choices']['self'] += 1
@@ -101,7 +104,7 @@ class ShopSimulation:
                                 hourly_standard_queue += 1
                                 self.results['queue_choices']['standard'] += 1
                         else:
-                            if np.random.rand() < 0.1:
+                            if prob < 0.1:
                                 daily_self_queue += 1
                                 hourly_self_queue += 1
                                 self.results['queue_choices']['self'] += 1
@@ -110,15 +113,16 @@ class ShopSimulation:
                                 hourly_standard_queue += 1
                                 self.results['queue_choices']['standard'] += 1
 
+
                     standard_waiting_time = self.calculate_time(hourly_standard_queue, checkouts_number, checkout_time)
                     self_waiting_time = self.calculate_time(hourly_self_queue, selfcheckouts_number, selfcheckout_time)
+
 
                     satisfaction = self.calculate_satisfaction(standard_waiting_time, self_waiting_time)
                     self.results['customer_satisfaction']['very_satisfied'] += satisfaction['very_satisfied']
                     self.results['customer_satisfaction']['satisfied'] += satisfaction['satisfied']
                     self.results['customer_satisfaction']['unsatisfied'] += satisfaction['unsatisfied']
-                    self.results['waiting_time'].append((self.calculate_avg(standard_waiting_time, checkouts_number),self.calculate_avg(self_waiting_time, selfcheckouts_number)))
-
+                    self.results['waiting_time'].append((self.calculate_avg(standard_waiting_time, hourly_standard_queue),self.calculate_avg(self_waiting_time, hourly_self_queue)))
                 self.results['queue_length'].append((daily_standard_queue, daily_self_queue))
 
 
@@ -130,28 +134,32 @@ class ShopSimulation:
             if i < checkouts:
                 waiting_time.append(time)
             else :
-                waiting_time.append(time * (i % checkouts))
+                waiting_time.append(time * ((i+1) // checkouts))
+
 
         return waiting_time
 
-    def calculate_avg(self, queue, checkouts):
-        return sum(queue) / checkouts
+    def calculate_avg(self, queue, len):
+        if( queue == 0 or len == 0):
+            return 0
+        else:
+            return sum(queue) / len
 
     def calculate_satisfaction(self, standard_waiting_times, self_waiting_times):
         satisfaction = {'very_satisfied': 0, 'satisfied': 0, 'unsatisfied': 0}
 
         for time in standard_waiting_times:
-            if time < 3:
+            if time < 3: #3
                 satisfaction['very_satisfied'] += 1
-            elif time < 5.5:
+            elif time < 5.5: #5
                 satisfaction['satisfied'] += 1
             else:
                 satisfaction['unsatisfied'] += 1
 
         for time in self_waiting_times:
-            if time < 2:
+            if time < 2: #2
                 satisfaction['very_satisfied'] += 1
-            elif time < 4:
+            elif time < 4: #4
                 satisfaction['satisfied'] += 1
             else:
                 satisfaction['unsatisfied'] += 1
