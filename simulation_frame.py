@@ -100,10 +100,20 @@ class SimulationFrame(tk.Frame):
         self.open_hours = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                    insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.open_hours.grid(row=7, column=1, pady=5)
+       
+       
+      
+        tk.Label(self.parameters_inner_frame, text="Markup (%)", **label_options).grid(row=8, column=0, sticky='w')
+        self.markup_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
+                             insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.markup_entry.grid(row=8, column=1, pady=5)
+
+
+
 
         self.submit_button = tk.Button(self.parameters_inner_frame, text="Zatwierdź", bg=button_color, fg=button_fg,
                                        borderwidth=0, command=self.submit, font=('Arial', 13))
-        self.submit_button.grid(row=8, columnspan=2, padx=10, pady=10, sticky='ew')
+        self.submit_button.grid(row=9, columnspan=2, padx=10, pady=10, sticky='ew')
 
         tk.Label(self.parameters_inner_frame, text="Predefiniowane modele sklepów", **label_options).grid(row=9,
                                                                                                           column=0,
@@ -192,7 +202,8 @@ class SimulationFrame(tk.Frame):
             # Pobranie odchylenia standardowego dla dziennych przyjść klientów
             'yearly_variation': float(self.yearly_variation_entry.get()),
             # Pobranie odchulenia standardowego w skali rocznej
-            'open_hours': float(self.open_hours.get())  # Pobranie czasu otwarcia sklepu
+            'open_hours': float(self.open_hours.get()),  # Pobranie czasu otwarcia sklepu
+            'markup_percentage': float(self.markup_entry.get())  # Pobranie wartości markup
         }
         simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
         simulation.run()  # Uruchomienie symulacji
@@ -218,6 +229,7 @@ class SimulationFrame(tk.Frame):
             total_revenue = sum(result['revenue'] for result in self.yearsTimeResults)
             total_employee_costs = sum(result['employee_costs'] for result in self.yearsTimeResults)
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
+            total_product_costs = sum(result['product_costs'] for result in self.yearsTimeResults)  
             total_days = len(self.yearsTimeResults) * 7  # 56 tygodni x 7 dni = 392 dni
             total_standard_queue_customers = sum(
                 sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in
@@ -238,8 +250,9 @@ class SimulationFrame(tk.Frame):
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
+                ("Koszt produktów", f"${total_product_costs:.2f}"), 
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
-                ("Zysk netto", f"${total_net_earnings:.2f}"),
+                ("Zysk netto", f"${total_net_earnings:.2f}"),  
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
                 ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
@@ -252,6 +265,7 @@ class SimulationFrame(tk.Frame):
             total_revenue = week_result['revenue']
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
+            total_product_costs = week_result['product_costs'] 
             total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / 12
             total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / 12
 
@@ -263,6 +277,7 @@ class SimulationFrame(tk.Frame):
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
+                ("Koszt produktów", f"${total_product_costs:.2f}"), 
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),

@@ -33,7 +33,8 @@ class ShopSimulation:
                 'waiting_time': [],
                 'customer_satisfaction': {'very_satisfied': 0, 'satisfied': 0, 'unsatisfied': 0},
                 'age_distribution': [],
-                'queue_choices': {'standard': 0, 'self': 0}
+                'queue_choices': {'standard': 0, 'self': 0},
+                'product_costs': 0  # Add this line to store total product costs
 
             }
 
@@ -86,6 +87,8 @@ class ShopSimulation:
                      basket_price *= 0.7  # Spend 30% less
 
                   spending = basket_price
+                  product_cost = basket_price / (1 + self.params['markup_percentage'] / 100)  # Calculate product cost without markup
+                  self.results['product_costs'] += product_cost
 
                   self.results['average_satisfaction'].append(satisfaction)
                   self.results['average_basket_price'].append(basket_price)
@@ -94,8 +97,7 @@ class ShopSimulation:
 
                 self.results['employee_costs'] = np.clip(np.random.normal(3000, 1000), 1000, None)
                 self.results['revenue'] = sum(self.results['average_spending'])
-                self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs']
-
+                self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs'] - self.results['product_costs']  # Subtract product costs from net earnings
                 # Initialize queue counts for the day
                 daily_standard_queue = 0
                 daily_self_queue = 0
