@@ -54,13 +54,43 @@ class ShopSimulation:
                 self.results['customer_count'].append(customer_count)
 
                 # Generate data for customer satisfaction, basket price, and spending
-                satisfaction = np.clip(np.random.normal(0.5, 0.2), 0, 1)
-                basket_price = np.clip(np.random.normal(55, 20), 10, None)
-                spending = customer_count * basket_price
+                for _ in range(customer_count):
+                  satisfaction = np.clip(np.random.normal(0.5, 0.2), 0, 1)
+                  basket_price = np.clip(np.random.normal(55, 20), 10, None)
 
-                self.results['average_satisfaction'].append(satisfaction)
-                self.results['average_basket_price'].append(basket_price)
-                self.results['average_spending'].append(spending)
+                 # Additional factors influencing spending based on satisfaction
+                  if satisfaction > 0.7:
+                    basket_price *= 1.1  # Buy more things if very satisfied
+                  elif satisfaction < 0.3:
+                    basket_price *= 0.9  # Forget something if unsatisfied
+                  
+                  #Forgot item
+                  forgot_item = np.random.rand()
+                  if forgot_item < 0.1:
+                     basket_price *= 0.8  # Forget some items (10% probability)
+
+                 #Bought more
+                  bought_more = np.random.rand()
+                  if bought_more < 0.15:
+                     basket_price *= 1.2  # Buy more items (15% probability)
+                 
+                 
+                 #Super spender
+                  super_spender = np.random.rand()
+                  if super_spender < 0.02:  # 2% probability of being a super spender
+                     basket_price *= 2.0  # Spend twice as much
+
+                #Low spender
+                  low_spender = np.random.rand()
+                  if low_spender < 0.3:  # 30% probability of spending less
+                     basket_price *= 0.7  # Spend 30% less
+
+                  spending = basket_price
+
+                  self.results['average_satisfaction'].append(satisfaction)
+                  self.results['average_basket_price'].append(basket_price)
+                  self.results['average_spending'].append(spending)
+
 
                 self.results['employee_costs'] = np.clip(np.random.normal(3000, 1000), 1000, None)
                 self.results['revenue'] = sum(self.results['average_spending'])
