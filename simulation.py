@@ -17,7 +17,15 @@ class ShopSimulation:
 
         checkouts_number = self.params['checkouts_number']
         selfcheckouts_number = self.params['selfcheckouts_number']
-        open_hours = self.params['open_hours']
+        open_time = self.params['open_time']
+        close_time = self.params['close_time']
+        open_hours = close_time - open_time  # Calculate the number of open hours
+        sigma_hours = self.params['sigma_hours']  # Standard deviation for hourly customer arrivals
+        
+        peak1_time = open_time + 3  # First peak 3 hours after opening
+        peak2_time = close_time - 3  # Second peak 3 hours before closing
+
+
 
         for _ in range(56):  # Run simulation for 56 weeks
             self.results = {
@@ -47,12 +55,17 @@ class ShopSimulation:
                 yearly_variation = np.random.normal(loc=0, scale=self.params['yearly_variation'])
 
                 # Customer count influenced by both daily and yearly variations
-                customer_count = np.random.normal(
-                    loc=max(self.params['mu_hours'] + daily_variation + yearly_variation, self.params['mu_min_hours']),
-                    scale=self.params['sigma_hours']
-                )
-                customer_count = max(int(customer_count), 0)
+                hourly_customer_counts = []
+                for hour in range(open_time, close_time):
+                   peak1_customers = np.random.normal(loc=self.params['mu_hours']/open_hours, scale=sigma_hours)
+                   peak2_customers = np.random.normal(loc=self.params['mu_hours']/open_hours, scale=sigma_hours)
+                   combined_customers = peak1_customers * np.exp(-0.5 * ((hour - peak1_time) / sigma_hours)**2) + \
+                                        peak2_customers * np.exp(-0.5 * ((hour - peak2_time) / sigma_hours)**2)
+                   hourly_customer_counts.append(max(int(combined_customers), 0))
+
+                customer_count = sum(hourly_customer_counts)
                 self.results['customer_count'].append(customer_count)
+ 
 
                 # Generate data for customer satisfaction, basket price, and spending
                 for _ in range(customer_count):
@@ -105,7 +118,7 @@ class ShopSimulation:
                 # Adding queue
                 hourly_customers = customer_count / open_hours
 
-                for hours in range(int(open_hours)):
+                for hour in range(open_time, close_time):
                     hourly_standard_queue = 0
                     hourly_self_queue = 0
 
