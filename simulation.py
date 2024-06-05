@@ -148,6 +148,18 @@ class ShopSimulation:
                 for hour in range(open_time, close_time):
                     hourly_standard_queue = 0
                     hourly_self_queue = 0
+                    new_checkouts_number = checkouts_number
+                    new_selfcheckouts_number = checkouts_number
+                    if(np.random.rand() < 0.05):
+                        new_checkouts_number -= np.clip(np.random.normal(1.5, 0.25), 1, 2)
+                    if(np.random.rand() < 0.15):
+                        new_selfcheckouts_number -= np.clip(np.random.normal(2.5, 0.75), 1, 4)
+
+
+                    if(new_checkouts_number < 1):
+                        new_checkouts_number = 1
+                    if(new_selfcheckouts_number < 1):
+                        new_selfcheckouts_number = 1
 
                     for _ in range(int(hourly_customers)):
                         # Generate age for each customer
@@ -184,8 +196,8 @@ class ShopSimulation:
                                 hourly_standard_queue += 1
                                 self.results['queue_choices']['standard'] += 1
 
-                    standard_waiting_time = self.calculate_time(hourly_standard_queue, checkouts_number, checkout_time)
-                    self_waiting_time = self.calculate_time(hourly_self_queue, selfcheckouts_number, selfcheckout_time)
+                    standard_waiting_time = self.calculate_time(hourly_standard_queue, new_checkouts_number, checkout_time)
+                    self_waiting_time = self.calculate_time(hourly_self_queue, new_selfcheckouts_number, selfcheckout_time)
 
                     satisfaction = self.calculate_satisfaction(standard_waiting_time, self_waiting_time)
                     self.results['customer_satisfaction']['very_satisfied'] += satisfaction['very_satisfied']
@@ -220,7 +232,7 @@ class ShopSimulation:
         for time in standard_waiting_times:
             if time < 3:  # 3
                 satisfaction['very_satisfied'] += 1
-            elif time < 5.5:  # 5
+            elif time < 4.5:  # 5
                 satisfaction['satisfied'] += 1
             else:
                 satisfaction['unsatisfied'] += 1
@@ -228,7 +240,7 @@ class ShopSimulation:
         for time in self_waiting_times:
             if time < 2:  # 2
                 satisfaction['very_satisfied'] += 1
-            elif time < 4:  # 4
+            elif time < 3.5:  # 4
                 satisfaction['satisfied'] += 1
             else:
                 satisfaction['unsatisfied'] += 1
