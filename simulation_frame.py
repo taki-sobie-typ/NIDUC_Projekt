@@ -8,6 +8,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 class SimulationFrame(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master, bg='#fff')  # Inicjalizacja ramki tkinter z tłem #333333
+        self.master.protocol("WM_DELETE_WINDOW", self.on_close)
         self.pack(padx=10, pady=10)  # Pakowanie ramki z marginesem 10 pikseli
         self.create_widgets()  # Wywołanie metody do tworzenia widżetów
 
@@ -77,63 +78,63 @@ class SimulationFrame(tk.Frame):
                                              insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.selfcheckouts_number.grid(row=3, column=1, pady=5)
 
+        tk.Label(self.parameters_inner_frame, text="Rozmiar sklepu", **label_options).grid(row=4, column=0, sticky='w')
+        self.shop_size = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
+                                  insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.shop_size.grid(row=4, column=1, pady=5)
+
         tk.Label(self.parameters_inner_frame, text="Odchylenie standardowe dla godzinowych przyjść klientów:",
-                 **label_options).grid(row=4, column=0, sticky='w')
+                 **label_options).grid(row=5, column=0, sticky='w')
         self.sigma_hours_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                           insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.sigma_hours_entry.grid(row=4, column=1, pady=5)
+        self.sigma_hours_entry.grid(row=5, column=1, pady=5)
 
         tk.Label(self.parameters_inner_frame, text="Odchylenie standardowe dla dziennych przyjść klientów:",
-                 **label_options).grid(row=5, column=0, sticky='w')
+                 **label_options).grid(row=6, column=0, sticky='w')
         self.daily_variation_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                               insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.daily_variation_entry.grid(row=5, column=1, pady=5)
+        self.daily_variation_entry.grid(row=6, column=1, pady=5)
 
         tk.Label(self.parameters_inner_frame, text="Odchylenie standardowe w skali rocznej:", **label_options).grid(
-            row=6, column=0, sticky='w')
+            row=7, column=0, sticky='w')
         self.yearly_variation_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                                insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.yearly_variation_entry.grid(row=6, column=1, pady=5)
+        self.yearly_variation_entry.grid(row=7, column=1, pady=5)
 
         tk.Label(self.parameters_inner_frame, text="Czas kiedy sklep jest czynny (w godzinach):", **label_options).grid(
-            row=7, column=0, sticky='w')
+            row=8, column=0, sticky='w')
         self.open_hours = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                    insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.open_hours.grid(row=7, column=1, pady=5)
-       
-       
-      
-        tk.Label(self.parameters_inner_frame, text="Markup (%)", **label_options).grid(row=8, column=0, sticky='w')
+        self.open_hours.grid(row=8, column=1, pady=5)
+
+        tk.Label(self.parameters_inner_frame, text="Markup (%)", **label_options).grid(row=9, column=0, sticky='w')
         self.markup_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
-                             insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
-        self.markup_entry.grid(row=8, column=1, pady=5)
-
-
-
+                                     insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        self.markup_entry.grid(row=9, column=1, pady=5)
 
         self.submit_button = tk.Button(self.parameters_inner_frame, text="Zatwierdź", bg=button_color, fg=button_fg,
                                        borderwidth=0, command=self.submit, font=('Arial', 13))
-        self.submit_button.grid(row=9, columnspan=2, padx=10, pady=10, sticky='ew')
+        self.submit_button.grid(row=10, columnspan=2, padx=10, pady=10, sticky='ew')
 
-        tk.Label(self.parameters_inner_frame, text="Predefiniowane modele sklepów", **label_options).grid(row=9,
+        tk.Label(self.parameters_inner_frame, text="Predefiniowane modele sklepów", **label_options).grid(row=11,
                                                                                                           column=0,
                                                                                                           sticky='w')
 
         self.prep1_button = tk.Button(self.parameters_inner_frame, text="Duży Sklep", bg='#ddd', fg=button_fg,
                                       borderwidth=0, command=lambda: self.update_entries(1), font=('Arial', 13))
-        self.prep1_button.grid(row=10, column=0, padx=10, pady=10, sticky='ew')
+        self.prep1_button.grid(row=12, column=0, padx=10, pady=10, sticky='ew')
 
         self.prep2_button = tk.Button(self.parameters_inner_frame, text="Średni Sklep", bg='#ddd', fg=button_fg,
                                       borderwidth=0, command=lambda: self.update_entries(2), font=('Arial', 13))
-        self.prep2_button.grid(row=11, column=0, padx=10, pady=10, sticky='ew')
+        self.prep2_button.grid(row=13, column=0, padx=10, pady=10, sticky='ew')
 
         self.prep3_button = tk.Button(self.parameters_inner_frame, text="Mały Sklep", bg='#ddd', fg=button_fg,
                                       borderwidth=0, command=lambda: self.update_entries(3), font=('Arial', 13))
-        self.prep3_button.grid(row=12, column=0, padx=10, pady=10, sticky='ew')
+        self.prep3_button.grid(row=14, column=0, padx=10, pady=10, sticky='ew')
 
         self.prep4_button = tk.Button(self.parameters_inner_frame, text="Mini Sklep", bg='#ddd', fg=button_fg,
                                       borderwidth=0, command=lambda: self.update_entries(4), font=('Arial', 13))
-        self.prep4_button.grid(row=13, column=0, padx=10, pady=10, sticky='ew')
+        self.prep4_button.grid(row=15, column=0, padx=10, pady=10, sticky='ew')
 
         # Druga zakładka (Wyniki Roczne)
         """"""
@@ -196,6 +197,8 @@ class SimulationFrame(tk.Frame):
             'mu_min_hours': float(self.mu_hours_entry_min.get()),  # Pobranie min godzin
             'checkouts_number': float(self.checkouts_number.get()),  #Pobranie liczby kas standardowych
             'selfcheckouts_number': float(self.selfcheckouts_number.get()),  # Pobranie liczby kas samoobslugowych
+            # Pobranie wartosci dla rozmiaru sklepu
+            'shop_size': float(self.shop_size.get()),
             'sigma_hours': float(self.sigma_hours_entry.get()),
             # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
             'daily_variation': float(self.daily_variation_entry.get()),
@@ -361,6 +364,8 @@ class SimulationFrame(tk.Frame):
         self.daily_variation_entry.delete(0, tk.END)
         self.yearly_variation_entry.delete(0, tk.END)
         self.open_hours.delete(0, tk.END)
+        self.shop_size.delete(0, tk.END)
+        self.markup_entry.delete(0, tk.END)
 
         if button_distinguish == 1:
             self.mu_hours_entry.insert(0, "1200")
@@ -371,6 +376,8 @@ class SimulationFrame(tk.Frame):
             self.daily_variation_entry.insert(0, "5")
             self.yearly_variation_entry.insert(0, "6")
             self.open_hours.insert(0, "16")
+            self.shop_size.insert(0, "PLACEHOLDER")
+            self.markup_entry.insert(0, "PLACEHOLDER")
         if button_distinguish == 2:
             self.mu_hours_entry.insert(0, "600")
             self.mu_hours_entry_min.insert(0, "120")
@@ -380,6 +387,8 @@ class SimulationFrame(tk.Frame):
             self.daily_variation_entry.insert(0, "6")
             self.yearly_variation_entry.insert(0, "9")
             self.open_hours.insert(0, "16")
+            self.shop_size.insert(0, "PLACEHOLDER")
+            self.markup_entry.insert(0, "PLACEHOLDER")
         if button_distinguish == 3:
             self.mu_hours_entry.insert(0, "250")
             self.mu_hours_entry_min.insert(0, "30")
@@ -389,6 +398,8 @@ class SimulationFrame(tk.Frame):
             self.daily_variation_entry.insert(0, "4")
             self.yearly_variation_entry.insert(0, "11")
             self.open_hours.insert(0, "12")
+            self.shop_size.insert(0, "PLACEHOLDER")
+            self.markup_entry.insert(0, "PLACEHOLDER")
         if button_distinguish == 4:
             self.mu_hours_entry.insert(0, "40")
             self.mu_hours_entry_min.insert(0, "5")
@@ -398,3 +409,11 @@ class SimulationFrame(tk.Frame):
             self.daily_variation_entry.insert(0, "7")
             self.yearly_variation_entry.insert(0, "7")
             self.open_hours.insert(0, "12")
+            self.shop_size.insert(0, "PLACEHOLDER")
+            self.markup_entry.insert(0, "PLACEHOLDER")
+    def on_close(self):
+        # Stop the simulation if it's running
+        if hasattr(self, 'simulation'):
+            self.simulation.stop()
+        # Destroy the window
+        self.master.destroy()

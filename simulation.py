@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 class ShopSimulation:
     def __init__(self, params):
@@ -27,6 +26,7 @@ class ShopSimulation:
                 'average_basket_price': [],
                 'average_spending': [],
                 'employee_costs': 0,
+                'shop_size': 0,
                 'revenue': 0,
                 'net_earnings': 0,
                 'queue_length': [],
