@@ -60,6 +60,7 @@ class SimulationFrame(tk.Frame):
                                        insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.mu_hours_entry.grid(row=0, column=1, pady=5)
 
+        #RESZTA UI
         tk.Label(self.parameters_inner_frame, text="Minimalna ilość osób", **label_options).grid(row=1, column=0,
                                                                                                  sticky='w')
         self.mu_hours_entry_min = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
@@ -298,26 +299,30 @@ class SimulationFrame(tk.Frame):
         for metric, value in summary_data:
             self.summary_table.insert("", "end", values=(metric, value))
 
+    #Naprawia problem podczas kolejnego wyświetlenia total
     def update_summary_combobox(self, event):
         selection = self.week_combobox.get()
         if selection == "Total":
-            self.update_summary(0)  # Pass 0 to indicate the "Total" selection
+            self.update_summary(0)  #jezeli wyswietlamy total to przekazujemy 0
         elif selection.startswith("Week"):
             week = int(selection.split()[1])
             self.update_summary(week)
         else:
-            # Handle other cases if needed
             pass
 
     def display_results(self, yearsTimeResults):
         week_numbers = list(range(0, 56))
         customer_counts = [sum(result['customer_count']) for result in yearsTimeResults]
 
+        # Informacje do wykresów
         revenue_total = [(result['revenue']) for result in yearsTimeResults]
         employee_cost_total = [(result['employee_costs']) for result in yearsTimeResults]
         net_earnings_total = [(result['net_earnings']) for result in yearsTimeResults]
-        #customer_satisfaction_total = [(result['customer_satisfaction']) for result in yearsTimeResults]
 
+        # Wyłuskiwanie infomracji o stanie zadowolenia klientow
+        very_satisfied_total = [result['customer_satisfaction']['very_satisfied'] for result in yearsTimeResults]
+        satisfied_total = [result['customer_satisfaction']['satisfied'] for result in yearsTimeResults]
+        unsatisfied_total = [result['customer_satisfaction']['unsatisfied'] for result in yearsTimeResults]
 
         # Subplot
         fig, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(5, 1, figsize=(10, 10))
@@ -348,10 +353,14 @@ class SimulationFrame(tk.Frame):
         ax4.legend()
 
         # Wykres dla satysfakcji klientów
-        #ax5.plot(week_numbers, customer_satisfaction_total, label='Satysfakcja klientów', color='red')
-        #ax5.set_xlabel('Numer tygodnia w roku')
-        #ax5.set_ylabel('Satysfakcja klientów')
-        #ax5.legend()
+        ax5.plot(week_numbers, very_satisfied_total, label='Bardzo zadowoleni', color='g')
+        ax5.plot(week_numbers, satisfied_total, label='Zadowoleni', color='b')
+        ax5.plot(week_numbers, unsatisfied_total, label='Niezadowoleni', color='r')
+        ax5.set_ylabel('Liczba klientów')
+        ax5.set_title('Satysfakcja klientów w skali roku')
+        ax5.legend()
+
+        plt.tight_layout()
 
         # Create a FigureCanvasTkAgg
         self.results_canvas = FigureCanvasTkAgg(fig, master=self.results_inner_frame)
@@ -360,6 +369,7 @@ class SimulationFrame(tk.Frame):
         # Pack the FigureCanvasTkAgg
         self.results_canvas.get_tk_widget().pack(side="left", fill="both", expand=True)
 
+    # Dodanie predefiniowanych rozmiarów
     def update_entries(self, button_distinguish):
         self.mu_hours_entry.delete(0, tk.END)
         self.mu_hours_entry_min.delete(0, tk.END)
@@ -412,8 +422,8 @@ class SimulationFrame(tk.Frame):
             self.shop_size.insert(0, "PLACEHOLDER")
             
     def on_close(self):
-        # Stop the simulation if it's running
+        # Stopuje symulacje
         if hasattr(self, 'simulation'):
             self.simulation.stop()
-        # Destroy the window
+        # Kończy okno
         self.master.destroy()
