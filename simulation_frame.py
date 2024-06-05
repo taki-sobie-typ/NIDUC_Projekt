@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import matplotlib.pyplot as plt
 from simulation import ShopSimulation  # Import klasy ShopSimulation z modułu simulation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -201,31 +202,42 @@ class SimulationFrame(tk.Frame):
         self.summary_table.pack(fill='both', expand=True, pady=10, padx=10)
 
     def submit(self):
-        params = {
-            'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie max liczby osób
-            'mu_min_hours': float(self.mu_hours_entry_min.get()),  # Pobranie min liczby osób
-            'checkouts_number': float(self.checkouts_number.get()),  # Pobranie liczby kas standardowych
-            'selfcheckouts_number': float(self.selfcheckouts_number.get()),  # Pobranie liczby kas samoobslugowych
-            # Pobranie wartosci dla rozmiaru sklepu
-            'shop_size': float(self.shop_size.get()),
-            'sigma_hours': float(self.sigma_hours_entry.get()),
-            # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
-            'daily_variation': float(self.daily_variation_entry.get()),
-            # Pobranie odchylenia standardowego dla dziennych przyjść klientów
-            'yearly_variation': float(self.yearly_variation_entry.get()),
-            # Pobranie odchulenia standardowego w skali rocznej
-            'open_time': int(self.open_time.get()),  # Pobranie godziny otwarcia sklepu
-            'close_time': int(self.close_time.get()),  # Pobranie godziny zamknięcia sklepu
-            'markup_percentage': float(self.markup_entry.get())  # Pobranie wartości markup
-        }
-        simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
-        simulation.run()  # Uruchomienie symulacji
+        try:
+            mu_hours = float(self.mu_hours_entry.get())
+            mu_min_hours = float(self.mu_hours_entry_min.get())
 
-        # Przechowywanie wyników w drugiej zakładce
-        self.display_results(simulation.yearsTimeResults)
+            if mu_hours < 0 or mu_min_hours < 0:
+                raise ValueError("Liczba osób nie może być ujemna!")
 
-        # Przechowywanie wyników w trzeciej zakładce
-        self.display_summary(simulation.yearsTimeResults)
+            params = {
+                'mu_hours': mu_hours,  # Pobranie max liczby osób
+                'mu_min_hours': mu_min_hours,  # Pobranie min liczby osób
+                'checkouts_number': float(self.checkouts_number.get()),  # Pobranie liczby kas standardowych
+                'selfcheckouts_number': float(self.selfcheckouts_number.get()),  # Pobranie liczby kas samoobslugowych
+                # Pobranie wartosci dla rozmiaru sklepu
+                'shop_size': float(self.shop_size.get()),
+                'sigma_hours': float(self.sigma_hours_entry.get()),
+                # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
+                'daily_variation': float(self.daily_variation_entry.get()),
+                # Pobranie odchylenia standardowego dla dziennych przyjść klientów
+                'yearly_variation': float(self.yearly_variation_entry.get()),
+                # Pobranie odchulenia standardowego w skali rocznej
+                'open_time': int(self.open_time.get()),  # Pobranie godziny otwarcia sklepu
+                'close_time': int(self.close_time.get()),  # Pobranie godziny zamknięcia sklepu
+                'markup_percentage': float(self.markup_entry.get())  # Pobranie wartości markup
+            }
+
+            simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
+            simulation.run()  # Uruchomienie symulacji
+
+            # Przechowywanie wyników w drugiej zakładce
+            self.display_results(simulation.yearsTimeResults)
+
+            # Przechowywanie wyników w trzeciej zakładce
+            self.display_summary(simulation.yearsTimeResults)
+
+        except ValueError as e:
+            messagebox.showerror("Błąd", str(e))
 
     def display_summary(self, yearsTimeResults):
         self.yearsTimeResults = yearsTimeResults
