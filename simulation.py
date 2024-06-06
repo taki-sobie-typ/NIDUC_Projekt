@@ -28,6 +28,7 @@ class ShopSimulation:
         peak2_time = close_time - 3  # Second peak 3 hours before closing
 
         alter_basket = 0
+        # Adjust basket size based on shop size
         shop_size = self.params['shop_size']
         if (shop_size == 0):
             alter_basket = 0.75
@@ -36,7 +37,7 @@ class ShopSimulation:
         else:
             alter_basket = 1
 
-        for _ in range(52):  # Run simulation for 56 weeks
+        for _ in range(52):  # Run simulation for 52 weeks
             self.results = {
                 'customer_count': [],
                 'average_satisfaction': [],
@@ -139,6 +140,7 @@ class ShopSimulation:
                     self.results['average_basket_price'].append(basket_price)
                     self.results['average_spending'].append(spending)
 
+                # Calculate employee costs
                 self.results['employee_costs'] = np.clip(np.random.normal(1500, 700), 500, None) * checkouts_number
                 self.results['revenue'] = sum(self.results['average_spending'])
                 self.results['net_earnings'] = self.results['revenue'] - self.results['employee_costs'] - self.results[
@@ -162,7 +164,7 @@ class ShopSimulation:
                     hourly_self_queue = 0
                     new_checkouts_number = checkouts_number
                     new_selfcheckouts_number = selfcheckouts_number
-                    if (np.random.rand() < 0.0):
+                    if (np.random.rand() < 0.10):
                         altering = int(np.clip(np.random.normal(1.5, 0.25), 1, 2))
                         new_checkouts_number -= altering
                         if (new_checkouts_number < 1):
@@ -171,7 +173,7 @@ class ShopSimulation:
                         else:
                             n_malfunctions += altering  ##
                             malfunctions += altering  ##
-                    if (np.random.rand() < 0.0):
+                    if (np.random.rand() < 0.20):
                         altering = int(np.clip(np.random.normal(2.5, 0.75), 1, 3))
                         new_selfcheckouts_number -= altering
                         if (new_selfcheckouts_number < 1):
@@ -257,15 +259,11 @@ class ShopSimulation:
 
     def calculate_time(self, queue, checkouts, time):
         waiting_time = []
-        # print(checkouts)
         for i in range(queue):
-            # print(i)
             if i < checkouts:
                 waiting_time.append(time)
             else:
                 waiting_time.append(time + (time * (i // checkouts)))
-                # print(i)
-                # print(time * (i //checkouts))
 
         return waiting_time
 
