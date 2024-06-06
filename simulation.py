@@ -101,13 +101,6 @@ class ShopSimulation:
                     if (alter_now > 1):
                         alter_now = 1
                     basket_price = np.clip(np.random.normal(35, 20), 15, None)
-
-                    # Additional factors influencing spending based on satisfaction
-                    # if satisfaction > 0.7:
-                    #    basket_price *= 1.1  # Buy more things if very satisfied
-                    # elif satisfaction < 0.3:
-                    #    basket_price *= 0.9  # Forget something if unsatisfied
-
                     # Altering basket price based on how many items were available
                     basket_price *= alter_now
 
@@ -152,9 +145,9 @@ class ShopSimulation:
                 # Adding queue
                 hourly_customers = customer_count / open_hours
 
-                n_malfunctions = 0  ##
-                s_malfunctions = 0  ##
-                malfunctions = 0  ##
+                n_malfunctions = 0
+                s_malfunctions = 0
+                malfunctions = 0
 
                 avg_self = 0
                 avg_normal = 0
@@ -171,8 +164,8 @@ class ShopSimulation:
                             n_malfunctions += checkouts_number - 1
                             malfunctions += checkouts_number - 1
                         else:
-                            n_malfunctions += altering  ##
-                            malfunctions += altering  ##
+                            n_malfunctions += altering
+                            malfunctions += altering
                     if (np.random.rand() < 0.20):
                         altering = int(np.clip(np.random.normal(2.5, 0.75), 1, 3))
                         new_selfcheckouts_number -= altering
@@ -180,8 +173,8 @@ class ShopSimulation:
                             s_malfunctions += selfcheckouts_number - 1
                             malfunctions += selfcheckouts_number - 1
                         else:
-                            s_malfunctions += altering  ##
-                            malfunctions += altering  ##
+                            s_malfunctions += altering
+                            malfunctions += altering
 
                     if (new_checkouts_number < 1):
                         new_checkouts_number = 1
@@ -231,21 +224,11 @@ class ShopSimulation:
                     self.results['customer_satisfaction']['very_satisfied'] += satisfaction['very_satisfied']
                     self.results['customer_satisfaction']['satisfied'] += satisfaction['satisfied']
                     self.results['customer_satisfaction']['unsatisfied'] += satisfaction['unsatisfied']
-                    # self.results['waiting_time'].append(self.calculate_avg(standard_waiting_time, hourly_standard_queue, checkout_time), self.calculate_avg(self_waiting_time,hourly_self_queue,selfcheckout_time))
-                    # self.results['waiting_time_s'].append(self.calculate_avg(self_waiting_time,hourly_self_queue,selfcheckout_time))
-                    # self.results['waiting_time'].append((self.calculate_avg(standard_waiting_time,
-                    #                   hourly_standard_queue, checkout_time),
-                    #  self.calculate_avg(self_waiting_time, hourly_self_queue, selfcheckout_time)))
-                    # print(self.calculate_avg(standard_waiting_time, hourly_standard_queue, checkout_time))
-                    # print(self.calculate_full(standard_waiting_time))
-                    # print(hourly_standard_queue)
-                    # print(self.calculate_avg(self_waiting_time, hourly_self_queue, checkout_time))
                     avg_self += self.calculate_avg(self_waiting_time, hourly_self_queue, selfcheckout_time)
                     avg_normal += self.calculate_avg(standard_waiting_time, hourly_standard_queue, checkout_time)
-                    # print(self.calculate_avg(self_waiting_time, hourly_self_queue, selfcheckout_time))
-                self.results['n_malfunctions'].append(n_malfunctions)  ##
-                self.results['s_malfunctions'].append(s_malfunctions)  ##
-                self.results['malfunctions'].append(malfunctions)  ##
+                self.results['n_malfunctions'].append(n_malfunctions)
+                self.results['s_malfunctions'].append(s_malfunctions)
+                self.results['malfunctions'].append(malfunctions)
                 avg_self /= open_hours
 
                 avg_normal /= open_hours

@@ -258,13 +258,6 @@ class SimulationFrame(tk.Frame):
             total_days = len(self.yearsTimeResults) * 7  # 56 tygodni x 7 dni = 392 dni
             total_standard_queue_customers = sum(sum(result['waiting_time']) for result in self.yearsTimeResults)
             total_self_queue_customers = sum(sum(result['waiting_time_s']) for result in self.yearsTimeResults)
-            # total_standard_queue_customers = sum(
-            #     sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in
-            #     self.yearsTimeResults) / open_hours
-            # total_self_queue_customers = sum(
-            #    sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in
-            #     self.yearsTimeResults) / open_hours
-
             avg_waiting_time_standard = total_standard_queue_customers / (52 * 7)
             avg_waiting_time_self = total_self_queue_customers / (52 * 7)
             satisfaction_levels = {
@@ -273,9 +266,9 @@ class SimulationFrame(tk.Frame):
                 'satisfied': sum(result['customer_satisfaction']['satisfied'] for result in self.yearsTimeResults),
                 'unsatisfied': sum(result['customer_satisfaction']['unsatisfied'] for result in self.yearsTimeResults)
             }
-            total_malfunctions = sum(sum(result['malfunctions']) for result in self.yearsTimeResults)  ##
-            total_s_malfunctions = sum(sum(result['s_malfunctions']) for result in self.yearsTimeResults)  ##
-            total_n_malfunctions = sum(sum(result['n_malfunctions']) for result in self.yearsTimeResults)  ##
+            total_malfunctions = sum(sum(result['malfunctions']) for result in self.yearsTimeResults)
+            total_s_malfunctions = sum(sum(result['s_malfunctions']) for result in self.yearsTimeResults)
+            total_n_malfunctions = sum(sum(result['n_malfunctions']) for result in self.yearsTimeResults)
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -283,16 +276,14 @@ class SimulationFrame(tk.Frame):
                 ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
-                # ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                # ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
-                ("Średni czas oczekiwania (standardowe kasy)", f"${avg_waiting_time_standard:.2f}"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"${avg_waiting_time_self:.2f}"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
                 ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
-                ("Ilosc wszystkich awarii", total_malfunctions),  ##
-                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),  ##
-                ("ilosc awarii kas standardowych", total_n_malfunctions)  ##
+                ("Ilosc wszystkich awarii", total_malfunctions),
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),
+                ("ilosc awarii kas standardowych", total_n_malfunctions)
             ]
         else:
             week_result = self.yearsTimeResults[week - 1]
@@ -301,8 +292,7 @@ class SimulationFrame(tk.Frame):
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
             total_product_costs = week_result['product_costs']
-            # total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / open_hours
-            # total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / open_hours
+
             total_standard_queue_customers = week_result['waiting_time']
             total_self_queue_customers = week_result['waiting_time_s']
 
@@ -310,9 +300,9 @@ class SimulationFrame(tk.Frame):
             avg_waiting_time_self = sum(total_self_queue_customers) / 7
 
             satisfaction_levels = week_result['customer_satisfaction']
-            total_malfunctions = sum(week_result['malfunctions'])  ##
-            total_s_malfunctions = sum(week_result['s_malfunctions'])  ##
-            total_n_malfunctions = sum(week_result['n_malfunctions'])  ##
+            total_malfunctions = sum(week_result['malfunctions'])
+            total_s_malfunctions = sum(week_result['s_malfunctions'])
+            total_n_malfunctions = sum(week_result['n_malfunctions'])
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -320,16 +310,14 @@ class SimulationFrame(tk.Frame):
                 ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
-                # ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                # ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
-                ("Średni czas oczekiwania (standardowe kasy)", f"${avg_waiting_time_standard:.2f}"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"${avg_waiting_time_self:.2f}"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
                 ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
-                ("Ilosc wszystkich awarii", total_malfunctions),  ##
-                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),  ##
-                ("ilosc awarii kas standardowych", total_n_malfunctions)  ##
+                ("Ilosc wszystkich awarii", total_malfunctions),
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),
+                ("ilosc awarii kas standardowych", total_n_malfunctions)
             ]
 
         for metric, value in summary_data:
