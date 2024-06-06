@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 import matplotlib.pyplot as plt
 from simulation import ShopSimulation  # Import klasy ShopSimulation z modułu simulation
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -60,7 +61,7 @@ class SimulationFrame(tk.Frame):
                                        insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.mu_hours_entry.grid(row=0, column=1, pady=5)
 
-        #RESZTA UI
+        # RESZTA UI
         tk.Label(self.parameters_inner_frame, text="Minimalna ilość osób", **label_options).grid(row=1, column=0,
                                                                                                  sticky='w')
         self.mu_hours_entry_min = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
@@ -102,17 +103,21 @@ class SimulationFrame(tk.Frame):
                                                insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.yearly_variation_entry.grid(row=7, column=1, pady=5)
 
-        tk.Label(self.parameters_inner_frame, text="Godzina otwarcia (24h format):", **label_options).grid(row=8, column=0, sticky='w')
-        self.open_time = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        tk.Label(self.parameters_inner_frame, text="Godzina otwarcia (24h format):", **label_options).grid(row=8,
+                                                                                                           column=0,
+                                                                                                           sticky='w')
+        self.open_time = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
+                                  insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.open_time.grid(row=8, column=1, pady=5)
 
-        tk.Label(self.parameters_inner_frame, text="Godzina zamknięcia (24h format):", **label_options).grid(row=9, column=0, sticky='w') 
-        self.close_time = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg, insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
+        tk.Label(self.parameters_inner_frame, text="Godzina zamknięcia (24h format):", **label_options).grid(row=9,
+                                                                                                             column=0,
+                                                                                                             sticky='w')
+        self.close_time = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
+                                   insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.close_time.grid(row=9, column=1, pady=5)
 
-        
-
-        tk.Label(self.parameters_inner_frame, text="Markup (%)", **label_options).grid(row= 10, column=0, sticky='w')
+        tk.Label(self.parameters_inner_frame, text="Markup (%)", **label_options).grid(row=10, column=0, sticky='w')
         self.markup_entry = tk.Entry(self.parameters_inner_frame, width=20, bg=entry_bg, fg=entry_fg,
                                      insertbackground=entry_fg, borderwidth=0, font=('Arial', 13))
         self.markup_entry.grid(row=10, column=1, pady=5)
@@ -162,26 +167,26 @@ class SimulationFrame(tk.Frame):
         # Configure the inner frame to resize properly
         self.results_inner_frame.bind('<Configure>', lambda e: self.canvas_results.configure(
             scrollregion=self.canvas_results.bbox('all')))
-        #self.weekly_results_text = tk.Text(self.weekly_results_frame, wrap='word')  # Utworzenie pola tekstowego do wyświetlania wyników
-        #self.weekly_results_text.pack(fill='both', expand=True)  # Pakowanie pola tekstowego z rozszerzeniem
+        # self.weekly_results_text = tk.Text(self.weekly_results_frame, wrap='word')  # Utworzenie pola tekstowego do wyświetlania wyników
+        # self.weekly_results_text.pack(fill='both', expand=True)  # Pakowanie pola tekstowego z rozszerzeniem
 
-        #Trzecia zakładka (Wyniki roczne podsumowanie numeryczne)
+        # Trzecia zakładka (Wyniki roczne podsumowanie numeryczne)
 
         self.summary_frame = ttk.Frame(self.notebook, style='TFrame')
         self.notebook.add(self.summary_frame, text='Podsumowanie Roczne Liczby')
 
-        #Drop menu do 3 zakładki
+        # Drop menu do 3 zakładki
 
         self.week_label = tk.Label(self.summary_frame, text="Wybierz tydzień:", **label_options)
         self.week_label.pack(pady=5)
 
-        self.week_combobox = ttk.Combobox(self.summary_frame, values=[f"Week {i}" for i in range(1, 57)] + ["Total"],
+        self.week_combobox = ttk.Combobox(self.summary_frame, values=[f"Week {i}" for i in range(1, 53)] + ["Total"],
                                           font=('Arial', 12))
-        self.week_combobox.current(56)
+        self.week_combobox.current(52)
         self.week_combobox.pack(pady=5)
         self.week_combobox.bind("<<ComboboxSelected>>", self.update_summary_combobox)
 
-        #Trzecia zakładka wygląd tabeli
+        # Trzecia zakładka wygląd tabeli
 
         self.summary_table = ttk.Treeview(self.summary_frame, columns=("Metric", "Value"), show='headings', height=8)
         self.summary_table.heading("Metric", text="Metric")
@@ -189,7 +194,7 @@ class SimulationFrame(tk.Frame):
         self.summary_table.column("Metric", anchor='center', width=150)
         self.summary_table.column("Value", anchor='center', width=200)
 
-        #Wiekszy font i separacja tabeli
+        # Wiekszy font i separacja tabeli
         style = ttk.Style()
         style.configure("Treeview.Heading", font=('Arial', 14, 'bold'), padding=(10, 5))
         style.configure("Treeview", font=('Arial', 14), rowheight=75)
@@ -197,31 +202,42 @@ class SimulationFrame(tk.Frame):
         self.summary_table.pack(fill='both', expand=True, pady=10, padx=10)
 
     def submit(self):
-        params = {
-            'mu_hours': float(self.mu_hours_entry.get()),  # Pobranie max liczby osób
-            'mu_min_hours': float(self.mu_hours_entry_min.get()),  # Pobranie min liczby osób
-            'checkouts_number': float(self.checkouts_number.get()),  #Pobranie liczby kas standardowych
-            'selfcheckouts_number': float(self.selfcheckouts_number.get()),  # Pobranie liczby kas samoobslugowych
-            # Pobranie wartosci dla rozmiaru sklepu
-            'shop_size': float(self.shop_size.get()),
-            'sigma_hours': float(self.sigma_hours_entry.get()),
-            # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
-            'daily_variation': float(self.daily_variation_entry.get()),
-            # Pobranie odchylenia standardowego dla dziennych przyjść klientów
-            'yearly_variation': float(self.yearly_variation_entry.get()),
-            # Pobranie odchulenia standardowego w skali rocznej
-            'open_time': int(self.open_time.get()),  # Pobranie godziny otwarcia sklepu
-            'close_time': int(self.close_time.get()),  # Pobranie godziny zamknięcia sklepu
-            'markup_percentage': float(self.markup_entry.get())  # Pobranie wartości markup
-        }
-        simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
-        simulation.run()  # Uruchomienie symulacji
+        try:
+            mu_hours = float(self.mu_hours_entry.get())
+            mu_min_hours = float(self.mu_hours_entry_min.get())
 
-        # Przechowywanie wyników w drugiej zakładce
-        self.display_results(simulation.yearsTimeResults)
+            if mu_hours < 0 or mu_min_hours < 0:
+                raise ValueError("Liczba osób nie może być ujemna!")
 
-        #Przechowywanie wyników w trzeciej zakładce
-        self.display_summary(simulation.yearsTimeResults)
+            params = {
+                'mu_hours': mu_hours,  # Pobranie max liczby osób
+                'mu_min_hours': mu_min_hours,  # Pobranie min liczby osób
+                'checkouts_number': float(self.checkouts_number.get()),  # Pobranie liczby kas standardowych
+                'selfcheckouts_number': float(self.selfcheckouts_number.get()),  # Pobranie liczby kas samoobslugowych
+                # Pobranie wartosci dla rozmiaru sklepu
+                'shop_size': float(self.shop_size.get()),
+                'sigma_hours': float(self.sigma_hours_entry.get()),
+                # Pobranie odchylenia standardowego dla godzinowych przyjść klientów
+                'daily_variation': float(self.daily_variation_entry.get()),
+                # Pobranie odchylenia standardowego dla dziennych przyjść klientów
+                'yearly_variation': float(self.yearly_variation_entry.get()),
+                # Pobranie odchulenia standardowego w skali rocznej
+                'open_time': int(self.open_time.get()),  # Pobranie godziny otwarcia sklepu
+                'close_time': int(self.close_time.get()),  # Pobranie godziny zamknięcia sklepu
+                'markup_percentage': float(self.markup_entry.get())  # Pobranie wartości markup
+            }
+
+            simulation = ShopSimulation(params)  # Utworzenie obiektu symulacji sklepu
+            simulation.run()  # Uruchomienie symulacji
+
+            # Przechowywanie wyników w drugiej zakładce
+            self.display_results(simulation.yearsTimeResults)
+
+            # Przechowywanie wyników w trzeciej zakładce
+            self.display_summary(simulation.yearsTimeResults)
+
+        except ValueError as e:
+            messagebox.showerror("Błąd", str(e))
 
     def display_summary(self, yearsTimeResults):
         self.yearsTimeResults = yearsTimeResults
@@ -238,35 +254,36 @@ class SimulationFrame(tk.Frame):
             total_revenue = sum(result['revenue'] for result in self.yearsTimeResults)
             total_employee_costs = sum(result['employee_costs'] for result in self.yearsTimeResults)
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
-            total_product_costs = sum(result['product_costs'] for result in self.yearsTimeResults)  
+            total_product_costs = sum(result['product_costs'] for result in self.yearsTimeResults)
             total_days = len(self.yearsTimeResults) * 7  # 56 tygodni x 7 dni = 392 dni
-            total_standard_queue_customers = sum(
-                sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in
-                self.yearsTimeResults) / 12
-            total_self_queue_customers = sum(
-                sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in
-                self.yearsTimeResults) / 12
-
-            avg_waiting_time_standard = total_standard_queue_customers / total_days
-            avg_waiting_time_self = total_self_queue_customers / total_days
+            total_standard_queue_customers = sum(sum(result['waiting_time']) for result in self.yearsTimeResults)
+            total_self_queue_customers = sum(sum(result['waiting_time_s']) for result in self.yearsTimeResults)
+            avg_waiting_time_standard = total_standard_queue_customers / (52 * 7)
+            avg_waiting_time_self = total_self_queue_customers / (52 * 7)
             satisfaction_levels = {
                 'very_satisfied': sum(
                     result['customer_satisfaction']['very_satisfied'] for result in self.yearsTimeResults),
                 'satisfied': sum(result['customer_satisfaction']['satisfied'] for result in self.yearsTimeResults),
                 'unsatisfied': sum(result['customer_satisfaction']['unsatisfied'] for result in self.yearsTimeResults)
             }
+            total_malfunctions = sum(sum(result['malfunctions']) for result in self.yearsTimeResults)
+            total_s_malfunctions = sum(sum(result['s_malfunctions']) for result in self.yearsTimeResults)
+            total_n_malfunctions = sum(sum(result['n_malfunctions']) for result in self.yearsTimeResults)
 
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
-                ("Koszt produktów", f"${total_product_costs:.2f}"), 
+                ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
-                ("Zysk netto", f"${total_net_earnings:.2f}"),  
+                ("Zysk netto", f"${total_net_earnings:.2f}"),
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
                 ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
-                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
+                ("Ilosc wszystkich awarii", total_malfunctions),
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),
+                ("ilosc awarii kas standardowych", total_n_malfunctions)
             ]
         else:
             week_result = self.yearsTimeResults[week - 1]
@@ -274,36 +291,43 @@ class SimulationFrame(tk.Frame):
             total_revenue = week_result['revenue']
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
-            total_product_costs = week_result['product_costs'] 
-            total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / 12
-            total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / 12
+            total_product_costs = week_result['product_costs']
 
-            avg_waiting_time_standard = total_standard_queue_customers / 7  # 7 dni w tygodniu
-            avg_waiting_time_self = total_self_queue_customers / 7  # 7 dni w tygodniu
+            total_standard_queue_customers = week_result['waiting_time']
+            total_self_queue_customers = week_result['waiting_time_s']
+
+            avg_waiting_time_standard = sum(total_standard_queue_customers) / 7
+            avg_waiting_time_self = sum(total_self_queue_customers) / 7
 
             satisfaction_levels = week_result['customer_satisfaction']
+            total_malfunctions = sum(week_result['malfunctions'])
+            total_s_malfunctions = sum(week_result['s_malfunctions'])
+            total_n_malfunctions = sum(week_result['n_malfunctions'])
 
             summary_data = [
                 ("Liczba klientów", total_customers),
                 ("Całkowity dochód", f"${total_revenue:.2f}"),
-                ("Koszt produktów", f"${total_product_costs:.2f}"), 
+                ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
                 ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
                 ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
-                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
+                ("Ilosc wszystkich awarii", total_malfunctions),
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),
+                ("ilosc awarii kas standardowych", total_n_malfunctions)
             ]
 
         for metric, value in summary_data:
             self.summary_table.insert("", "end", values=(metric, value))
 
-    #Naprawia problem podczas kolejnego wyświetlenia total
+    # Naprawia problem podczas kolejnego wyświetlenia total
     def update_summary_combobox(self, event):
         selection = self.week_combobox.get()
         if selection == "Total":
-            self.update_summary(0)  #jezeli wyswietlamy total to przekazujemy 0
+            self.update_summary(0)  # jezeli wyswietlamy total to przekazujemy 0
         elif selection.startswith("Week"):
             week = int(selection.split()[1])
             self.update_summary(week)
@@ -311,7 +335,7 @@ class SimulationFrame(tk.Frame):
             pass
 
     def display_results(self, yearsTimeResults):
-        week_numbers = list(range(0, 56))
+        week_numbers = list(range(0, 52))
         customer_counts = [sum(result['customer_count']) for result in yearsTimeResults]
 
         # Informacje do wykresów
@@ -329,20 +353,20 @@ class SimulationFrame(tk.Frame):
 
         # Wykres dla liczby klientow
         ax1.plot(week_numbers, customer_counts, label='Liczba klientów')
-        #ax1.set_xlabel('Numer tygodnia w roku')
+        # ax1.set_xlabel('Numer tygodnia w roku')
         ax1.set_ylabel('Liczba klientów w skali roku')
         ax1.set_title('Dla kolejnych tygodni w roku')
         ax1.legend()
 
         # Wykres dla dochodu całkowitego
         ax2.plot(week_numbers, revenue_total, label='Calkowity dochód', color='orange')
-        #ax2.set_xlabel('Numer tygodnia w roku')
+        # ax2.set_xlabel('Numer tygodnia w roku')
         ax2.set_ylabel('Całkowity dochód')
         ax2.legend()
 
         # Wykres dla dochodu całkowitego
         ax3.plot(week_numbers, employee_cost_total, label='Koszt pracowników', color='green')
-        #ax3.set_xlabel('Numer tygodnia w roku')
+        # ax3.set_xlabel('Numer tygodnia w roku')
         ax3.set_ylabel('Koszt pracowników')
         ax3.legend()
 
@@ -380,47 +404,57 @@ class SimulationFrame(tk.Frame):
         self.yearly_variation_entry.delete(0, tk.END)
         self.shop_size.delete(0, tk.END)
         self.markup_entry.delete(0, tk.END)
+        self.open_time.delete(0, tk.END)
+        self.close_time.delete(0, tk.END)
 
         if button_distinguish == 1:
-            self.mu_hours_entry.insert(0, "1200")
-            self.mu_hours_entry_min.insert(0, "250")
-            self.checkouts_number.insert(0, "20")
-            self.selfcheckouts_number.insert(0, "30")
-            self.sigma_hours_entry.insert(0, "16")
+            self.mu_hours_entry.insert(0, "800")
+            self.mu_hours_entry_min.insert(0, "120")
+            self.checkouts_number.insert(0, "8")
+            self.selfcheckouts_number.insert(0, "20")
+            self.sigma_hours_entry.insert(0, "4")
             self.daily_variation_entry.insert(0, "5")
             self.yearly_variation_entry.insert(0, "6")
-            self.shop_size.insert(0, "PLACEHOLDER")
-            
+            self.shop_size.insert(0, "2")
+            self.open_time.insert(0, "6")
+            self.close_time.insert(0, "22")
+
         if button_distinguish == 2:
-            self.mu_hours_entry.insert(0, "600")
-            self.mu_hours_entry_min.insert(0, "120")
-            self.checkouts_number.insert(0, "10")
-            self.selfcheckouts_number.insert(0, "20")
-            self.sigma_hours_entry.insert(0, "12")
+            self.mu_hours_entry.insert(0, "300")
+            self.mu_hours_entry_min.insert(0, "30")
+            self.checkouts_number.insert(0, "5")
+            self.selfcheckouts_number.insert(0, "8")
+            self.sigma_hours_entry.insert(0, "3")
             self.daily_variation_entry.insert(0, "6")
             self.yearly_variation_entry.insert(0, "9")
-            self.shop_size.insert(0, "PLACEHOLDER")
-           
+            self.shop_size.insert(0, "1")
+            self.open_time.insert(0, "6")
+            self.close_time.insert(0, "21")
+
         if button_distinguish == 3:
-            self.mu_hours_entry.insert(0, "250")
-            self.mu_hours_entry_min.insert(0, "30")
-            self.checkouts_number.insert(0, "6")
-            self.selfcheckouts_number.insert(0, "8")
-            self.sigma_hours_entry.insert(0, "14")
-            self.daily_variation_entry.insert(0, "4")
+            self.mu_hours_entry.insert(0, "155")
+            self.mu_hours_entry_min.insert(0, "15")
+            self.checkouts_number.insert(0, "3")
+            self.selfcheckouts_number.insert(0, "6")
+            self.sigma_hours_entry.insert(0, "2")
+            self.daily_variation_entry.insert(0, "6")
             self.yearly_variation_entry.insert(0, "11")
-            self.shop_size.insert(0, "PLACEHOLDER")
-            
+            self.shop_size.insert(0, "1")
+            self.open_time.insert(0, "8")
+            self.close_time.insert(0, "21")
+
         if button_distinguish == 4:
-            self.mu_hours_entry.insert(0, "40")
-            self.mu_hours_entry_min.insert(0, "5")
-            self.checkouts_number.insert(0, "4")
-            self.selfcheckouts_number.insert(0, "4")
-            self.sigma_hours_entry.insert(0, "10")
-            self.daily_variation_entry.insert(0, "7")
-            self.yearly_variation_entry.insert(0, "7")
-            self.shop_size.insert(0, "PLACEHOLDER")
-            
+            self.mu_hours_entry.insert(0, "50")
+            self.mu_hours_entry_min.insert(0, "10")
+            self.checkouts_number.insert(0, "1")
+            self.selfcheckouts_number.insert(0, "2")
+            self.sigma_hours_entry.insert(0, "1")
+            self.daily_variation_entry.insert(0, "5")
+            self.yearly_variation_entry.insert(0, "3")
+            self.shop_size.insert(0, "0")
+            self.open_time.insert(0, "9")
+            self.close_time.insert(0, "20")
+
     def on_close(self):
         # Stopuje symulacje
         if hasattr(self, 'simulation'):
