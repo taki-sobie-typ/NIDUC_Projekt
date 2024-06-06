@@ -180,9 +180,9 @@ class SimulationFrame(tk.Frame):
         self.week_label = tk.Label(self.summary_frame, text="Wybierz tydzień:", **label_options)
         self.week_label.pack(pady=5)
 
-        self.week_combobox = ttk.Combobox(self.summary_frame, values=[f"Week {i}" for i in range(1, 57)] + ["Total"],
+        self.week_combobox = ttk.Combobox(self.summary_frame, values=[f"Week {i}" for i in range(1, 53)] + ["Total"],
                                           font=('Arial', 12))
-        self.week_combobox.current(56)
+        self.week_combobox.current(52)
         self.week_combobox.pack(pady=5)
         self.week_combobox.bind("<<ComboboxSelected>>", self.update_summary_combobox)
 
@@ -256,21 +256,26 @@ class SimulationFrame(tk.Frame):
             total_net_earnings = sum(result['net_earnings'] for result in self.yearsTimeResults)
             total_product_costs = sum(result['product_costs'] for result in self.yearsTimeResults)
             total_days = len(self.yearsTimeResults) * 7  # 56 tygodni x 7 dni = 392 dni
-            total_standard_queue_customers = sum(
-                sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in
-                self.yearsTimeResults) / 12
-            total_self_queue_customers = sum(
-                sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in
-                self.yearsTimeResults) / 12
+            total_standard_queue_customers = sum(sum(result['waiting_time']) for result in self.yearsTimeResults)
+            total_self_queue_customers = sum(sum(result['waiting_time_s']) for result in self.yearsTimeResults)
+            # total_standard_queue_customers = sum(
+            #     sum(waiting_time[0] for waiting_time in result['waiting_time']) for result in
+            #     self.yearsTimeResults) / open_hours
+            # total_self_queue_customers = sum(
+            #    sum(waiting_time[1] for waiting_time in result['waiting_time']) for result in
+            #     self.yearsTimeResults) / open_hours
 
-            avg_waiting_time_standard = total_standard_queue_customers / total_days
-            avg_waiting_time_self = total_self_queue_customers / total_days
+            avg_waiting_time_standard = total_standard_queue_customers / (52 * 7)
+            avg_waiting_time_self = total_self_queue_customers / (52 * 7)
             satisfaction_levels = {
                 'very_satisfied': sum(
                     result['customer_satisfaction']['very_satisfied'] for result in self.yearsTimeResults),
                 'satisfied': sum(result['customer_satisfaction']['satisfied'] for result in self.yearsTimeResults),
                 'unsatisfied': sum(result['customer_satisfaction']['unsatisfied'] for result in self.yearsTimeResults)
             }
+            total_malfunctions = sum(sum(result['malfunctions']) for result in self.yearsTimeResults)  ##
+            total_s_malfunctions = sum(sum(result['s_malfunctions']) for result in self.yearsTimeResults)  ##
+            total_n_malfunctions = sum(sum(result['n_malfunctions']) for result in self.yearsTimeResults)  ##
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -278,11 +283,16 @@ class SimulationFrame(tk.Frame):
                 ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
-                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                # ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                # ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"${avg_waiting_time_standard:.2f}"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"${avg_waiting_time_self:.2f}"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
-                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
+                ("Ilosc wszystkich awarii", total_malfunctions),  ##
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),  ##
+                ("ilosc awarii kas standardowych", total_n_malfunctions)  ##
             ]
         else:
             week_result = self.yearsTimeResults[week - 1]
@@ -291,13 +301,18 @@ class SimulationFrame(tk.Frame):
             total_employee_costs = week_result['employee_costs']
             total_net_earnings = week_result['net_earnings']
             total_product_costs = week_result['product_costs']
-            total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / 12
-            total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / 12
+            # total_standard_queue_customers = sum(waiting_time[0] for waiting_time in week_result['waiting_time']) / open_hours
+            # total_self_queue_customers = sum(waiting_time[1] for waiting_time in week_result['waiting_time']) / open_hours
+            total_standard_queue_customers = week_result['waiting_time']
+            total_self_queue_customers = week_result['waiting_time_s']
 
-            avg_waiting_time_standard = total_standard_queue_customers / 7  # 7 dni w tygodniu
-            avg_waiting_time_self = total_self_queue_customers / 7  # 7 dni w tygodniu
+            avg_waiting_time_standard = sum(total_standard_queue_customers) / 7
+            avg_waiting_time_self = sum(total_self_queue_customers) / 7
 
             satisfaction_levels = week_result['customer_satisfaction']
+            total_malfunctions = sum(week_result['malfunctions'])  ##
+            total_s_malfunctions = sum(week_result['s_malfunctions'])  ##
+            total_n_malfunctions = sum(week_result['n_malfunctions'])  ##
 
             summary_data = [
                 ("Liczba klientów", total_customers),
@@ -305,11 +320,16 @@ class SimulationFrame(tk.Frame):
                 ("Koszt produktów", f"${total_product_costs:.2f}"),
                 ("Koszty pracowników", f"${total_employee_costs:.2f}"),
                 ("Zysk netto", f"${total_net_earnings:.2f}"),
-                ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
-                ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                # ("Średni czas oczekiwania (standardowe kasy)", f"{avg_waiting_time_standard:.2f} min"),
+                # ("Średni czas oczekiwania (kasy samoobsługowe)", f"{avg_waiting_time_self:.2f} min"),
+                ("Średni czas oczekiwania (standardowe kasy)", f"${avg_waiting_time_standard:.2f}"),
+                ("Średni czas oczekiwania (kasy samoobsługowe)", f"${avg_waiting_time_self:.2f}"),
                 ("Ilość osób bardzo zadowolonych", satisfaction_levels['very_satisfied']),
                 ("Ilość osób zadowolonych", satisfaction_levels['satisfied']),
-                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied'])
+                ("Ilość osób niezadowolonych", satisfaction_levels['unsatisfied']),
+                ("Ilosc wszystkich awarii", total_malfunctions),  ##
+                ("Ilosc awarii kas samoobslugowych", total_s_malfunctions),  ##
+                ("ilosc awarii kas standardowych", total_n_malfunctions)  ##
             ]
 
         for metric, value in summary_data:
@@ -327,7 +347,7 @@ class SimulationFrame(tk.Frame):
             pass
 
     def display_results(self, yearsTimeResults):
-        week_numbers = list(range(0, 56))
+        week_numbers = list(range(0, 52))
         customer_counts = [sum(result['customer_count']) for result in yearsTimeResults]
 
         # Informacje do wykresów
@@ -402,7 +422,7 @@ class SimulationFrame(tk.Frame):
         if button_distinguish == 1:
             self.mu_hours_entry.insert(0, "800")
             self.mu_hours_entry_min.insert(0, "120")
-            self.checkouts_number.insert(0, "10")
+            self.checkouts_number.insert(0, "8")
             self.selfcheckouts_number.insert(0, "20")
             self.sigma_hours_entry.insert(0, "4")
             self.daily_variation_entry.insert(0, "5")
@@ -414,7 +434,7 @@ class SimulationFrame(tk.Frame):
         if button_distinguish == 2:
             self.mu_hours_entry.insert(0, "300")
             self.mu_hours_entry_min.insert(0, "30")
-            self.checkouts_number.insert(0, "6")
+            self.checkouts_number.insert(0, "5")
             self.selfcheckouts_number.insert(0, "8")
             self.sigma_hours_entry.insert(0, "3")
             self.daily_variation_entry.insert(0, "6")
@@ -424,9 +444,9 @@ class SimulationFrame(tk.Frame):
             self.close_time.insert(0, "21")
 
         if button_distinguish == 3:
-            self.mu_hours_entry.insert(0, "120")
+            self.mu_hours_entry.insert(0, "155")
             self.mu_hours_entry_min.insert(0, "15")
-            self.checkouts_number.insert(0, "4")
+            self.checkouts_number.insert(0, "3")
             self.selfcheckouts_number.insert(0, "6")
             self.sigma_hours_entry.insert(0, "2")
             self.daily_variation_entry.insert(0, "4")
@@ -436,9 +456,9 @@ class SimulationFrame(tk.Frame):
             self.close_time.insert(0, "21")
 
         if button_distinguish == 4:
-            self.mu_hours_entry.insert(0, "35")
-            self.mu_hours_entry_min.insert(0, "2")
-            self.checkouts_number.insert(0, "2")
+            self.mu_hours_entry.insert(0, "50")
+            self.mu_hours_entry_min.insert(0, "10")
+            self.checkouts_number.insert(0, "1")
             self.selfcheckouts_number.insert(0, "2")
             self.sigma_hours_entry.insert(0, "1")
             self.daily_variation_entry.insert(0, "7")
